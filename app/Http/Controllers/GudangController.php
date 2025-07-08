@@ -13,7 +13,7 @@ class GudangController extends Controller
 {
     public function index()
     {
-        $gudangs = Gudang::withCount(['rak', 'stokMasuk'])
+        $gudangs = Gudang::withCount(['rak', 'stokMasuk', 'user'])
             ->latest()
             ->paginate(10);
 
@@ -48,26 +48,44 @@ class GudangController extends Controller
             ->with('success', 'Gudang berhasil ditambahkan');
     }
 
-    public function show($id)
-    {
-        $gudang = Gudang::with(['user', 'rak', 'stokMasuk' => function($query) {
-            $query->latest()->take(10);
-        }])->findOrFail($id);
-
-        $stokSummary = StokMasuk::select([
-                'produk_id',
-                'varian_id',
-                'detail_id',
-                DB::raw('SUM(kuantitas) as total_stok')
+public function show($id)
+{
+    $gudang = Gudang::with([
+        'user',
+        'rak',
+        'stokMasuk' => function($query) {
+            $query->with([
+                'produk', 
+                'varian.produk', 
+                'detail.varian.produk'
             ])
-            ->where('gudang_id', $id)
-            ->where('status', 'approved')
-            ->groupBy(['produk_id', 'varian_id', 'detail_id'])
-            ->with(['produk', 'varian', 'detail'])
-            ->get();
+            ->latest()
+            ->take(10);
+        }
+    ])->findOrFail($id);
 
-        return view('gudang.show', compact('gudang', 'stokSummary'));
-    }
+    // Perbaikan untuk stok summary
+    $stokSummary = StokMasuk::select([
+            'produk_id',
+            'varian_id',
+            'detail_id',
+            'rak',
+            DB::raw('SUM(kuantitas) as total_stok')
+        ])
+        ->where('gudang_id', $id)
+        ->where('status', 'approved')
+        ->groupBy('produk_id', 'varian_id', 'detail_id', 'rak')
+        ->with([
+            'produk',
+            'varian.produk',
+            'detail.varian.produk'
+        ])
+        ->get();
+
+    return view('gudang.show', compact('gudang', 'stokSummary'));
+}
+
+
 
     public function edit($id)
     {

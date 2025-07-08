@@ -3,30 +3,62 @@
 @section('content')
 
 <style>
-    body {
-        font-family: 'Poppins', sans-serif;
-        background-color: #eef0ff;
-        padding: 30px 20px;
+    :root {
+        --primary-color: #5C48EE;
+        --primary-light: #eef0ff;
+        --secondary-color: #6c757d;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --warning-color: #ffc107;
+        --info-color: #17a2b8;
+        --light-color: #f8f9fa;
+        --dark-color: #343a40;
+        --border-radius: 8px;
+        --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        --transition: all 0.3s ease;
     }
 
     .main-container {
-        max-width: 800px;
-        margin: 0 auto;
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 0 15px;
     }
 
     .card {
         background-color: white;
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        margin-top: 40px;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        padding: 30px;
+        margin-top: 20px;
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     }
 
     .card-title {
-        font-size: 20px;
-        font-weight: 700;
-        margin-bottom: 20px;
-        color: #2c3e50;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--dark-color);
+        margin: 0;
+    }
+
+    .form-section {
+        margin-bottom: 30px;
+    }
+
+    .form-section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 15px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid var(--primary-light);
     }
 
     .form-group {
@@ -34,99 +66,164 @@
     }
 
     .form-label {
-        font-size: 13px;
-        font-weight: 600;
         display: block;
+        font-size: 14px;
+        font-weight: 500;
         margin-bottom: 8px;
-        color: #4a5568;
+        color: #555;
+    }
+
+    .form-label.required:after {
+        content: " *";
+        color: var(--danger-color);
     }
 
     .form-control {
         width: 100%;
-        padding: 10px 12px;
-        font-size: 13px;
-        border-radius: 8px;
-        border: 1px solid #e2e8f0;
-        box-sizing: border-box;
-        transition: all 0.3s ease;
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: var(--border-radius);
+        font-size: 14px;
+        transition: var(--transition);
+        background-color: #fff;
     }
 
     .form-control:focus {
-        border-color: #5C48EE;
-        box-shadow: 0 0 0 3px rgba(92, 72, 238, 0.1);
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(92, 72, 238, 0.25);
         outline: none;
     }
 
+    textarea.form-control {
+        min-height: 100px;
+        resize: vertical;
+    }
+
     .error-message {
-        color: #e53e3e;
+        color: var(--danger-color);
         font-size: 12px;
         margin-top: 5px;
     }
 
     .error-container {
         background-color: #fff5f5;
-        color: #e53e3e;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 20px;
         border: 1px solid #fed7d7;
+        color: var(--danger-color);
+        padding: 15px;
+        border-radius: var(--border-radius);
+        margin-bottom: 20px;
     }
 
     .btn {
-        font-size: 13px;
         padding: 10px 20px;
-        border-radius: 8px;
+        border-radius: var(--border-radius);
+        font-size: 14px;
         font-weight: 600;
-        border: none;
         cursor: pointer;
-        transition: all 0.3s ease;
+        border: none;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn i {
+        margin-right: 8px;
     }
 
     .btn-primary {
-        background-color: #5C48EE;
+        background-color: var(--primary-color);
         color: white;
     }
 
     .btn-primary:hover {
-        background-color: #4a3bc8;
+        background-color: #4a3ac4;
+        transform: translateY(-2px);
     }
 
     .btn-outline {
         background-color: white;
-        color: #5C48EE;
-        border: 1px solid #5C48EE;
+        color: var(--primary-color);
+        border: 1px solid var(--primary-color);
     }
 
     .btn-outline:hover {
-        background-color: #f8f9fa;
+        background-color: var(--primary-light);
     }
 
-    .button-group {
+    .form-actions {
         display: flex;
-        gap: 12px;
-        margin-top: 25px;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
     }
 
-    .select2-container {
-        width: 100% !important;
-    }
-
-    .select2-selection {
+    .select2-container--default .select2-selection--single,
+    .select2-container--default .select2-selection--multiple {
+        border: 1px solid #ddd !important;
+        border-radius: var(--border-radius) !important;
         min-height: 42px !important;
-        display: flex !important;
-        align-items: center !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered,
+    .select2-container--default .select2-selection--multiple .select2-selection__rendered {
+        line-height: 42px !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 42px !important;
     }
 
     .stok-info {
         font-size: 12px;
-        color: #718096;
+        color: var(--secondary-color);
         margin-top: 5px;
+    }
+
+    .stok-value {
+        font-weight: 600;
+        color: var(--success-color);
+    }
+
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 0 -10px;
+    }
+
+    .col-md-6 {
+        flex: 0 0 50%;
+        max-width: 50%;
+        padding: 0 10px;
+    }
+
+    @media (max-width: 768px) {
+        .col-md-6 {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+        
+        .card {
+            padding: 20px 15px;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .btn {
+            width: 100%;
+        }
     }
 </style>
 
 <div class="main-container">
     <div class="card">
-        <h1 class="card-title">Tambah Laporan Produk Hilang</h1>
+        <div class="card-header">
+            <h1 class="card-title">Tambah Laporan Produk Hilang</h1>
+        </div>
 
         @if ($errors->any())
             <div class="error-container">
@@ -142,81 +239,111 @@
         <form action="{{ route('produk-hilang.store') }}" method="POST">
             @csrf
 
-            <div class="form-group">
-                <label for="produk_id" class="form-label">Produk <span class="text-danger">*</span></label>
-                <select name="produk_id" id="produk_id" class="form-control" required></select>
-                @error('produk_id')
-                    <span class="error-message">{{ $message }}</span>
-                @enderror
-            </div>
-
-            <div class="form-group">
-                <label for="varian_id" class="form-label">Varian</label>
-                <select name="varian_id" id="varian_id" class="form-control">
-                    <option value="">-- Pilih Varian --</option>
-                </select>
-                @error('varian_id')
-                    <span class="error-message">{{ $message }}</span>
-                @enderror
-            </div>
-
-            <div class="form-group">
-                <label for="detail_id" class="form-label">Detail</label>
-                <select name="detail_id" id="detail_id" class="form-control">
-                    <option value="">-- Pilih Detail --</option>
-                </select>
-                <div id="stok-info" class="stok-info" style="display: none;">
-                    Stok tersedia: <span id="stok-value">0</span>
+            <div class="form-section">
+                <h3 class="form-section-title"><i class="fas fa-box-open mr-2"></i>Informasi Produk</h3>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="produk_id" class="form-label required">Produk</label>
+                            <select name="produk_id" id="produk_id" class="form-control" required></select>
+                            @error('produk_id')
+                                <span class="error-message">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="keterangan_id" class="form-label required">Keterangan</label>
+                            <select name="keterangan_id" id="keterangan_id" class="form-control" required>
+                                <option value="">-- Pilih Keterangan --</option>
+                                @foreach ($keterangans as $keterangan)
+                                    <option value="{{ $keterangan->id }}" {{ old('keterangan_id') == $keterangan->id ? 'selected' : '' }}>
+                                        {{ $keterangan->nama }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('keterangan_id')
+                                <span class="error-message">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
                 </div>
-                @error('detail_id')
-                    <span class="error-message">{{ $message }}</span>
-                @enderror
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="varian_id" class="form-label">Varian</label>
+                            <select name="varian_id" id="varian_id" class="form-control">
+                                <option value="">-- Pilih Varian --</option>
+                            </select>
+                            @error('varian_id')
+                                <span class="error-message">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="detail_id" class="form-label">Detail</label>
+                            <select name="detail_id" id="detail_id" class="form-control">
+                                <option value="">-- Pilih Detail --</option>
+                            </select>
+                            <div id="stok-info" class="stok-info" style="display: none;">
+                                Stok tersedia: <span id="stok-value" class="stok-value">0</span>
+                            </div>
+                            @error('detail_id')
+                                <span class="error-message">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="keterangan_id" class="form-label">Keterangan <span class="text-danger">*</span></label>
-                <select name="keterangan_id" id="keterangan_id" class="form-control" required>
-                    <option value="">-- Pilih Keterangan --</option>
-                    @foreach ($keterangans as $keterangan)
-                        <option value="{{ $keterangan->id }}" {{ old('keterangan_id') == $keterangan->id ? 'selected' : '' }}>
-                            {{ $keterangan->nama }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('keterangan_id')
-                    <span class="error-message">{{ $message }}</span>
-                @enderror
+            <div class="form-section">
+                <h3 class="form-section-title"><i class="fas fa-info-circle mr-2"></i>Detail Laporan</h3>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="jumlah_hilang" class="form-label required">Jumlah Hilang</label>
+                            <input type="number" min="1" name="jumlah_hilang" id="jumlah_hilang" class="form-control" 
+                                   value="{{ old('jumlah_hilang') }}" required>
+                            @error('jumlah_hilang')
+                                <span class="error-message">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="tanggal_kejadian" class="form-label required">Tanggal Kejadian</label>
+                            <input type="date" name="tanggal_kejadian" id="tanggal_kejadian" class="form-control" 
+                                   value="{{ old('tanggal_kejadian', date('Y-m-d')) }}" max="{{ date('Y-m-d') }}" required>
+                            @error('tanggal_kejadian')
+                                <span class="error-message">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="catatan_tambahan" class="form-label">Catatan Tambahan</label>
+                    <textarea name="catatan_tambahan" id="catatan_tambahan" class="form-control" rows="3">{{ old('catatan_tambahan') }}</textarea>
+                    @error('catatan_tambahan')
+                        <span class="error-message">{{ $message }}</span>
+                    @enderror
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="jumlah_hilang" class="form-label">Jumlah Hilang <span class="text-danger">*</span></label>
-                <input type="number" min="1" name="jumlah_hilang" id="jumlah_hilang" class="form-control" 
-                       value="{{ old('jumlah_hilang') }}" required>
-                @error('jumlah_hilang')
-                    <span class="error-message">{{ $message }}</span>
-                @enderror
-            </div>
-
-            <div class="form-group">
-                <label for="tanggal_kejadian" class="form-label">Tanggal Kejadian <span class="text-danger">*</span></label>
-                <input type="date" name="tanggal_kejadian" id="tanggal_kejadian" class="form-control" 
-                       value="{{ old('tanggal_kejadian', date('Y-m-d')) }}" max="{{ date('Y-m-d') }}" required>
-                @error('tanggal_kejadian')
-                    <span class="error-message">{{ $message }}</span>
-                @enderror
-            </div>
-
-            <div class="form-group">
-                <label for="catatan_tambahan" class="form-label">Catatan Tambahan</label>
-                <textarea name="catatan_tambahan" id="catatan_tambahan" class="form-control" rows="3">{{ old('catatan_tambahan') }}</textarea>
-                @error('catatan_tambahan')
-                    <span class="error-message">{{ $message }}</span>
-                @enderror
-            </div>
-
-            <div class="button-group">
-                <button type="submit" class="btn btn-primary">Simpan Laporan</button>
-                <a href="{{ route('produk-hilang.index') }}" class="btn btn-outline">Batal</a>
+            <div class="form-actions">
+                <a href="{{ route('produk-hilang.index') }}" class="btn btn-outline">
+                    <i class="fas fa-times"></i> Batal
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Simpan Laporan
+                </button>
             </div>
         </form>
     </div>

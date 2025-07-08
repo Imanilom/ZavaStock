@@ -4,119 +4,217 @@
 @section('content')
 
 <style>
-    body {
-        font-family: 'Poppins', sans-serif;
-        background-color: #eef0ff;
-        margin: 0;
-        padding: 30px 20px;
-    }
-
-    .main-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        width: 100%;
-    }
-
-    .card {
+    .product-form {
         background-color: white;
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        width: 100%;
-        box-sizing: border-box;
-        margin-top: 40px;
+        border-radius: 0.5rem;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+        padding: 2rem;
     }
 
-    .header-row {
+    .form-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e3e6f0;
     }
 
-    .header-row h1 {
-        font-size: 20px;
-        font-weight: 700;
+    .form-header h1 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #4e73df;
         margin: 0;
     }
 
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #5a5c69;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .section-title i {
+        margin-right: 0.5rem;
+        color: #4e73df;
+    }
+
     .form-group {
-        margin-bottom: 15px;
+        margin-bottom: 1.25rem;
     }
 
     .form-group label {
         display: block;
-        font-size: 12px;
+        font-size: 0.875rem;
         font-weight: 500;
-        margin-bottom: 5px;
-        color: #333;
+        margin-bottom: 0.5rem;
+        color: #5a5c69;
+    }
+
+    .form-group label.required:after {
+        content: " *";
+        color: #e74a3b;
     }
 
     .form-control {
         width: 100%;
-        padding: 8px 12px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-size: 12px;
-        box-sizing: border-box;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        color: #6e707e;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #d1d3e2;
+        border-radius: 0.35rem;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
     }
 
-    .btn {
-        padding: 8px 16px;
-        border-radius: 6px;
-        font-size: 12px;
-        font-weight: 600;
-        cursor: pointer;
-        border: none;
+    .form-control:focus {
+        color: #6e707e;
+        background-color: #fff;
+        border-color: #bac8f3;
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
     }
 
-    .btn-primary {
-        background-color: #5C48EE;
-        color: white;
+    .form-control[readonly] {
+        background-color: #f8f9fc;
     }
 
-    .btn-outline {
-        background-color: white;
-        color: #5C48EE;
-        border: 1px solid #5C48EE;
+    .variant-container, .detail-container {
+        border: 1px dashed #d1d3e2;
+        padding: 1.25rem;
+        border-radius: 0.35rem;
+        margin-bottom: 1.25rem;
+        background-color: #f8f9fc;
     }
 
-    .btn-danger {
-        background-color: #dc3545;
-        color: white;
-    }
-
-    .varian-container, .detail-container {
-        border: 1px dashed #ccc;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 15px;
-    }
-
-    .varian-header, .detail-header {
+    .variant-header, .detail-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 10px;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #e3e6f0;
     }
 
-    .preview-foto {
-        width: 80px;
-        height: 80px;
+    .variant-header h4, .detail-header h6 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #4e73df;
+        margin: 0;
+    }
+
+    .preview-image {
+        width: 100px;
+        height: 100px;
         object-fit: cover;
-        border-radius: 4px;
-        margin-top: 5px;
+        border-radius: 0.35rem;
+        border: 1px solid #e3e6f0;
+        margin-top: 0.5rem;
+        display: block;
     }
 
-    .select2-container {
-        width: 100% !important;
+    .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        line-height: 1.5;
+        border-radius: 0.35rem;
+        transition: all 0.15s ease;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .btn i {
+        margin-right: 0.375rem;
+    }
+
+    .btn-primary {
+        background-color: #4e73df;
+        border-color: #4e73df;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #2e59d9;
+        border-color: #2653d4;
+    }
+
+    .btn-outline {
+        background-color: transparent;
+        border: 1px solid #4e73df;
+        color: #4e73df;
+    }
+
+    .btn-outline:hover {
+        background-color: #f8f9fc;
+    }
+
+    .btn-danger {
+        background-color: #e74a3b;
+        border-color: #e74a3b;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background-color: #e02d1b;
+        border-color: #d52a1a;
+    }
+
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e3e6f0;
+    }
+
+    .select2-container--default .select2-selection--multiple {
+        border: 1px solid #d1d3e2 !important;
+        border-radius: 0.35rem !important;
+        min-height: calc(1.5em + 0.75rem + 2px) !important;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        background-color: #4e73df !important;
+        border-color: #4e73df !important;
+    }
+
+    @media (max-width: 768px) {
+        .form-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
     }
 </style>
 
-<div class="main-container">
-    <div class="card">
-        <div class="header-row">
-            <h1>Edit Produk: {{ $produk->nama_produk }}</h1>
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Edit Produk</h1>
+        <a href="{{ route('produk.index') }}" class="d-none d-sm-inline-block btn btn-sm btn-outline shadow-sm">
+            <i class="fas fa-arrow-left fa-sm"></i> Kembali ke Daftar Produk
+        </a>
+    </div>
+
+    <div class="product-form">
+        <div class="form-header">
+            <h1><i class="fas fa-box-open mr-2"></i>Edit Produk: {{ $produk->nama_produk }}</h1>
         </div>
 
         <form action="{{ route('produk.update', $produk->id) }}" method="POST" enctype="multipart/form-data">
@@ -125,180 +223,213 @@
 
             <div class="row">
                 <div class="col-md-6">
-                    <!-- Informasi Dasar Produk -->
-                    <div class="form-group">
-                        <label for="sku">SKU Produk <span class="text-danger">*</span></label>
-                        <input type="text" name="sku" id="sku" class="form-control" value="{{ $produk->sku }}" required readonly>
-                    </div>
+                    <!-- Basic Product Information -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Informasi Dasar Produk</span>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="nama_produk">Nama Produk <span class="text-danger">*</span></label>
-                        <input type="text" name="nama_produk" id="nama_produk" class="form-control" value="{{ $produk->nama_produk }}" required>
-                    </div>
+                        <div class="form-group">
+                            <label for="sku" class="required">SKU Produk</label>
+                            <input type="text" name="sku" id="sku" class="form-control" value="{{ $produk->sku }}" required readonly>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="kategori">Kategori <span class="text-danger">*</span></label>
-                        <select name="kategori" id="kategori" class="form-control" required>
-                            <option value="">Pilih Kategori</option>
-                            @foreach($kategoriProduks as $key => $value)
-                                <option value="{{ $key }}" {{ $produk->kategori == $key ? 'selected' : '' }}>{{ $value }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                        <div class="form-group">
+                            <label for="nama_produk" class="required">Nama Produk</label>
+                            <input type="text" name="nama_produk" id="nama_produk" class="form-control" value="{{ $produk->nama_produk }}" required>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="bahan">Bahan</label>
-                        <input type="text" name="bahan" id="bahan" class="form-control" value="{{ $produk->bahan }}">
-                    </div>
+                        <div class="form-group">
+                            <label for="kategori" class="required">Kategori</label>
+                            <select name="kategori" id="kategori" class="form-control" required>
+                                <option value="">Pilih Kategori</option>
+                                @foreach($kategoriProduks as $key => $value)
+                                    <option value="{{ $key }}" {{ $produk->kategori == $key ? 'selected' : '' }}>{{ $value }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="status">Status</label>
-                        <select name="status" id="status" class="form-control">
-                            <option value="AKTIF" {{ $produk->status == 'AKTIF' ? 'selected' : '' }}>AKTIF</option>
-                            <option value="NONAKTIF" {{ $produk->status == 'NONAKTIF' ? 'selected' : '' }}>NONAKTIF</option>
-                        </select>
+                        <div class="form-group">
+                            <label for="bahan">Bahan</label>
+                            <input type="text" name="bahan" id="bahan" class="form-control" value="{{ $produk->bahan }}">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select name="status" id="status" class="form-control">
+                                <option value="AKTIF" {{ $produk->status == 'AKTIF' ? 'selected' : '' }}>AKTIF</option>
+                                <option value="NONAKTIF" {{ $produk->status == 'NONAKTIF' ? 'selected' : '' }}>NONAKTIF</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
                 <div class="col-md-6">
-                    <!-- Foto dan Deskripsi -->
-                    <div class="form-group">
-                        <label for="foto">Foto Produk</label>
-                        <input type="file" name="foto" id="foto" class="form-control" accept="image/*" onchange="previewImage(this)">
-                        @if($produk->foto)
-                            <img id="foto-preview" class="preview-foto" src="{{ asset('storage/' . $produk->foto) }}" alt="Preview Foto">
-                        @else
-                            <img id="foto-preview" class="preview-foto" src="#" alt="Preview Foto" style="display:none;">
-                        @endif
-                    </div>
+                    <!-- Photo and Description -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-image"></i>
+                            <span>Foto & Deskripsi</span>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="deskripsi">Deskripsi</label>
-                        <textarea name="deskripsi" id="deskripsi" class="form-control" rows="3">{{ $produk->deskripsi }}</textarea>
-                    </div>
+                        <div class="form-group">
+                            <label for="foto">Foto Produk</label>
+                            <input type="file" name="foto" id="foto" class="form-control" accept="image/*" onchange="previewImage(this)">
+                            @if($produk->foto)
+                                <img id="foto-preview" class="preview-image mt-2" src="{{ asset('storage/' . $produk->foto) }}" alt="Preview Foto">
+                            @else
+                                <img id="foto-preview" class="preview-image mt-2" src="#" alt="Preview Foto" style="display:none;">
+                            @endif
+                        </div>
 
-                    <div class="form-group">
-                        <label for="supplier_ids">Supplier</label>
-                        <select name="supplier_ids[]" id="supplier_ids" class="form-control select2" multiple>
-                            @foreach($suppliers as $supplier)
-                                <option value="{{ $supplier->id }}" 
-                                    {{ in_array($supplier->id, $produk->suppliers->pluck('id')->toArray()) ? 'selected' : '' }}>
-                                    {{ $supplier->nama }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <div class="form-group">
+                            <label for="deskripsi">Deskripsi</label>
+                            <textarea name="deskripsi" id="deskripsi" class="form-control" rows="4">{{ $produk->deskripsi }}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="supplier_ids">Supplier</label>
+                            <select name="supplier_ids[]" id="supplier_ids" class="form-control select2" multiple>
+                                @foreach($suppliers as $supplier)
+                                    <option value="{{ $supplier->id }}" 
+                                        {{ in_array($supplier->id, $produk->suppliers->pluck('id')->toArray()) ? 'selected' : '' }}>
+                                        {{ $supplier->nama }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Varian Produk -->
-            <div id="varian-wrapper">
-                <h3 style="font-size: 16px; margin: 20px 0 10px;">Varian Produk</h3>
-                
-                @foreach($produk->varian as $varianIndex => $varian)
-                <div class="varian-container" id="varian-{{ $varianIndex + 1 }}">
-                    <div class="varian-header">
-                        <h4 style="font-size: 14px; margin: 0;">Varian #{{ $varianIndex + 1 }}</h4>
-                        <button type="button" class="btn btn-danger btn-sm" onclick="removeVarian(this)">Hapus</button>
-                    </div>
+            <!-- Product Variants -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="fas fa-layer-group"></i>
+                    <span>Varian Produk</span>
+                </div>
 
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Nama Varian <span class="text-danger">*</span></label>
-                                <input type="text" name="varian[{{ $varianIndex + 1 }}][nama]" class="form-control" value="{{ $varian->varian }}" required>
-                            </div>
+                <div id="varian-wrapper">
+                    @foreach($produk->varian as $varianIndex => $varian)
+                    <div class="variant-container" id="varian-{{ $varianIndex + 1 }}">
+                        <div class="variant-header">
+                            <h4><i class="fas fa-cube mr-2"></i>Varian #{{ $varianIndex + 1 }}</h4>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="removeVarian(this)">
+                                <i class="fas fa-trash-alt"></i> Hapus
+                            </button>
                         </div>
-                        
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Harga Beli <span class="text-danger">*</span></label>
-                                <input type="number" name="varian[{{ $varianIndex + 1 }}][harga_beli]" class="form-control" value="{{ $varian->harga_beli }}" required>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Harga Jual <span class="text-danger">*</span></label>
-                                <input type="number" name="varian[{{ $varianIndex + 1 }}][harga_jual]" class="form-control" value="{{ $varian->harga_jual }}" required>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label>Diskon</label>
-                                <input type="text" name="varian[{{ $varianIndex + 1 }}][diskon]" class="form-control" value="{{ $varian->diskon }}">
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label>Satuan</label>
-                                <input type="text" name="varian[{{ $varianIndex + 1 }}][satuan]" class="form-control" value="{{ $varian->satuan }}">
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label>Panjang</label>
-                                <input type="text" name="varian[{{ $varianIndex + 1 }}][panjang]" class="form-control" value="{{ $varian->panjang }}">
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label>Berat</label>
-                                <input type="text" name="varian[{{ $varianIndex + 1 }}][berat]" class="form-control" value="{{ $varian->berat }}">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Detail untuk varian ini -->
-                    <div id="detail-wrapper-{{ $varianIndex + 1 }}">
-                        <h5 style="font-size: 13px; margin: 15px 0 10px;">Detail dan Stok</h5>
-                        <input type="hidden" name="varian[{{ $varianIndex + 1 }}][id]" value="{{ $varian->id }}">
-
-
-                        @foreach($varian->detail as $detailIndex => $detail)
-                        <input type="hidden" name="varian[{{ $varianIndex + 1 }}][detail][{{ $detailIndex + 1 }}][id]" value="{{ $detail->id }}">
-                        <input type="hidden" name="varian[{{ $varianIndex + 1 }}][detail][{{ $detailIndex + 1 }}][kode_detail]" value="{{ $detail->kode_detail }}">
-                        <div class="detail-container">
-                            <div class="detail-header">
-                                <h6 style="font-size: 12px; margin: 0;">Detail #{{ $detailIndex + 1 }}</h6>
-                                <button type="button" class="btn btn-danger btn-sm" onclick="removeDetail(this, {{ $varianIndex + 1 }})">Hapus</button>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="required">Nama Varian</label>
+                                    <input type="text" name="varian[{{ $varianIndex + 1 }}][nama]" class="form-control" value="{{ $varian->varian }}" required>
+                                </div>
                             </div>
                             
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Nama Detail <span class="text-danger">*</span></label>
-                                        <input type="text" name="varian[{{ $varianIndex + 1 }}][detail][{{ $detailIndex + 1 }}][nama]" class="form-control" value="{{ $detail->detail }}" required>
-                                    </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="required">Harga Beli</label>
+                                    <input type="number" name="varian[{{ $varianIndex + 1 }}][harga_beli]" class="form-control" value="{{ $varian->harga_beli }}" required>
                                 </div>
-                                
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Stok <span class="text-danger">*</span></label>
-                                        <input type="number" name="varian[{{ $varianIndex + 1 }}][detail][{{ $detailIndex + 1 }}][stok]" class="form-control" value="{{ $detail->stok }}" required>
-                                    </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="required">Harga Jual</label>
+                                    <input type="number" name="varian[{{ $varianIndex + 1 }}][harga_jual]" class="form-control" value="{{ $varian->harga_jual }}" required>
                                 </div>
                             </div>
                         </div>
-                        @endforeach
-                        
-                        <button type="button" class="btn btn-outline btn-sm" onclick="addDetail({{ $varianIndex + 1 }})">+ Tambah Detail</button>
+
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Diskon</label>
+                                    <input type="text" name="varian[{{ $varianIndex + 1 }}][diskon]" class="form-control" value="{{ $varian->diskon }}">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Satuan</label>
+                                    <input type="text" name="varian[{{ $varianIndex + 1 }}][satuan]" class="form-control" value="{{ $varian->satuan }}">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Panjang</label>
+                                    <input type="text" name="varian[{{ $varianIndex + 1 }}][panjang]" class="form-control" value="{{ $varian->panjang }}">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Berat</label>
+                                    <input type="text" name="varian[{{ $varianIndex + 1 }}][berat]" class="form-control" value="{{ $varian->berat }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Variant Details -->
+                        <div id="detail-wrapper-{{ $varianIndex + 1 }}">
+                            <div class="section-title" style="margin-bottom: 1rem;">
+                                <i class="fas fa-list-ul"></i>
+                                <span>Detail dan Stok</span>
+                            </div>
+                            <input type="hidden" name="varian[{{ $varianIndex + 1 }}][id]" value="{{ $varian->id }}">
+
+                            @foreach($varian->detail as $detailIndex => $detail)
+                            <input type="hidden" name="varian[{{ $varianIndex + 1 }}][detail][{{ $detailIndex + 1 }}][id]" value="{{ $detail->id }}">
+                            <input type="hidden" name="varian[{{ $varianIndex + 1 }}][detail][{{ $detailIndex + 1 }}][kode_detail]" value="{{ $detail->kode_detail }}">
+                            <div class="detail-container">
+                                <div class="detail-header">
+                                    <h6><i class="fas fa-circle-notch mr-2"></i>Detail #{{ $detailIndex + 1 }}</h6>
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeDetail(this, {{ $varianIndex + 1 }})">
+                                        <i class="fas fa-trash-alt"></i> Hapus
+                                    </button>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="required">Nama Detail</label>
+                                            <input type="text" name="varian[{{ $varianIndex + 1 }}][detail][{{ $detailIndex + 1 }}][nama]" class="form-control" value="{{ $detail->detail }}" required>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="required">Stok</label>
+                                            <input type="number" name="varian[{{ $varianIndex + 1 }}][detail][{{ $detailIndex + 1 }}][stok]" class="form-control" value="{{ $detail->stok }}" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                            
+                            <button type="button" class="btn btn-outline btn-sm" onclick="addDetail({{ $varianIndex + 1 }})">
+                                <i class="fas fa-plus"></i> Tambah Detail
+                            </button>
+                        </div>
                     </div>
+                    @endforeach
                 </div>
-                @endforeach
+
+                <button type="button" class="btn btn-outline" onclick="addVarian()">
+                    <i class="fas fa-plus"></i> Tambah Varian
+                </button>
             </div>
 
-            <button type="button" class="btn btn-outline" onclick="addVarian()">+ Tambah Varian</button>
-
-            <div class="form-group text-right mt-4">
-                <button type="submit" class="btn btn-primary">Update Produk</button>
-                <a href="{{ route('produk.index') }}" class="btn btn-outline">Batal</a>
+            <div class="action-buttons">
+                <a href="{{ route('produk.index') }}" class="btn btn-outline">
+                    <i class="fas fa-times"></i> Batal
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Update Produk
+                </button>
             </div>
         </form>
     </div>
@@ -309,15 +440,16 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
-    // Inisialisasi Select2
+    // Initialize Select2
     $(document).ready(function() {
         $('.select2').select2({
             placeholder: "Pilih Supplier",
-            allowClear: true
+            allowClear: true,
+            width: '100%'
         });
     });
 
-    // Preview image sebelum upload
+    // Preview image before upload
     function previewImage(input) {
         const preview = document.getElementById('foto-preview');
         if (input.files && input.files[0]) {
@@ -330,7 +462,7 @@
         }
     }
 
-    // Counter untuk varian dan detail
+    // Counter for variants and details
     let varianCounter = {{ count($produk->varian) }};
     let detailCounters = {
         @foreach($produk->varian as $varianIndex => $varian)
@@ -338,42 +470,44 @@
         @endforeach
     };
 
-    // Tambah varian baru
+    // Add new variant
     function addVarian() {
         varianCounter++;
-        detailCounters[varianCounter] = 0; // Reset counter untuk varian baru
+        detailCounters[varianCounter] = 0; // Reset counter for new variant
         
         const varianWrapper = document.getElementById('varian-wrapper');
         
-        // Buat elemen varian baru
+        // Create new variant element
         const newVarian = document.createElement('div');
-        newVarian.className = 'varian-container';
+        newVarian.className = 'variant-container';
         newVarian.id = 'varian-' + varianCounter;
         
         newVarian.innerHTML = `
-            <div class="varian-header">
-                <h4 style="font-size: 14px; margin: 0;">Varian #${varianCounter}</h4>
-                <button type="button" class="btn btn-danger btn-sm" onclick="removeVarian(this)">Hapus</button>
+            <div class="variant-header">
+                <h4><i class="fas fa-cube mr-2"></i>Varian #${varianCounter}</h4>
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeVarian(this)">
+                    <i class="fas fa-trash-alt"></i> Hapus
+                </button>
             </div>
 
             <div class="row">
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label>Nama Varian <span class="text-danger">*</span></label>
+                        <label class="required">Nama Varian</label>
                         <input type="text" name="varian[${varianCounter}][nama]" class="form-control" required>
                     </div>
                 </div>
                 
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label>Harga Beli <span class="text-danger">*</span></label>
+                        <label class="required">Harga Beli</label>
                         <input type="number" name="varian[${varianCounter}][harga_beli]" class="form-control" required>
                     </div>
                 </div>
                 
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label>Harga Jual <span class="text-danger">*</span></label>
+                        <label class="required">Harga Jual</label>
                         <input type="number" name="varian[${varianCounter}][harga_jual]" class="form-control" required>
                     </div>
                 </div>
@@ -410,56 +544,63 @@
             </div>
 
             <div id="detail-wrapper-${varianCounter}">
-                <h5 style="font-size: 13px; margin: 15px 0 10px;">Detail dan Stok</h5>
-                <button type="button" class="btn btn-outline btn-sm" onclick="addDetail(${varianCounter})">+ Tambah Detail</button>
+                <div class="section-title" style="margin-bottom: 1rem;">
+                    <i class="fas fa-list-ul"></i>
+                    <span>Detail dan Stok</span>
+                </div>
+                <button type="button" class="btn btn-outline btn-sm" onclick="addDetail(${varianCounter})">
+                    <i class="fas fa-plus"></i> Tambah Detail
+                </button>
             </div>
         `;
         
         varianWrapper.appendChild(newVarian);
         
-        // Tambahkan detail pertama secara otomatis
+        // Add first detail automatically
         addDetail(varianCounter);
     }
 
-    // Tambah detail baru untuk varian tertentu
+    // Add new detail for specific variant
     function addDetail(varianId) {
         detailCounters[varianId] = (detailCounters[varianId] || 0) + 1;
         const detailCounter = detailCounters[varianId];
         
         const detailWrapper = document.getElementById(`detail-wrapper-${varianId}`);
         
-        // Buat elemen detail baru
+        // Create new detail element
         const newDetail = document.createElement('div');
         newDetail.className = 'detail-container';
         
         newDetail.innerHTML = `
             <div class="detail-header">
-                <h6 style="font-size: 12px; margin: 0;">Detail #${detailCounter}</h6>
-                <button type="button" class="btn btn-danger btn-sm" onclick="removeDetail(this, ${varianId})">Hapus</button>
+                <h6><i class="fas fa-circle-notch mr-2"></i>Detail #${detailCounter}</h6>
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeDetail(this, ${varianId})">
+                    <i class="fas fa-trash-alt"></i> Hapus
+                </button>
             </div>
             
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label>Nama Detail <span class="text-danger">*</span></label>
+                        <label class="required">Nama Detail</label>
                         <input type="text" name="varian[${varianId}][detail][${detailCounter}][nama]" class="form-control" required>
                     </div>
                 </div>
                 
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label>Stok <span class="text-danger">*</span></label>
+                        <label class="required">Stok</label>
                         <input type="number" name="varian[${varianId}][detail][${detailCounter}][stok]" class="form-control" required>
                     </div>
                 </div>
             </div>
         `;
         
-        // Temukan tombol "Tambah Detail" yang benar
+        // Find the correct "Add Detail" button
         const addButtons = detailWrapper.getElementsByTagName('button');
         let addButton = null;
         
-        // Cari tombol dengan teks "+ Tambah Detail"
+        // Find button with "+ Tambah Detail" text
         for (let i = 0; i < addButtons.length; i++) {
             if (addButtons[i].textContent.includes('Tambah Detail')) {
                 addButton = addButtons[i];
@@ -467,26 +608,26 @@
             }
         }
         
-        // Jika tombol ditemukan, sisipkan sebelum tombol
+        // If button found, insert before it
         if (addButton) {
             detailWrapper.insertBefore(newDetail, addButton);
         } else {
-            // Jika tidak ditemukan, tambahkan ke akhir wrapper
+            // If not found, append to wrapper
             detailWrapper.appendChild(newDetail);
         }
     }
 
-    // Hapus varian
+    // Remove variant
     function removeVarian(button) {
-        const varianContainer = button.closest('.varian-container');
-        if (document.querySelectorAll('.varian-container').length > 1) {
+        const varianContainer = button.closest('.variant-container');
+        if (document.querySelectorAll('.variant-container').length > 1) {
             varianContainer.remove();
         } else {
             alert('Produk harus memiliki minimal 1 varian');
         }
     }
 
-    // Hapus detail
+    // Remove detail
     function removeDetail(button, varianId) {
         const detailContainer = button.closest('.detail-container');
         const detailContainers = document.querySelectorAll(`#detail-wrapper-${varianId} .detail-container`);
@@ -494,20 +635,20 @@
         if (detailContainers.length > 1) {
             detailContainer.remove();
             
-            // Perbarui nomor detail yang tersisa
+            // Update numbers for remaining details
             const remainingDetails = document.querySelectorAll(`#detail-wrapper-${varianId} .detail-container`);
             remainingDetails.forEach((detail, index) => {
                 const header = detail.querySelector('.detail-header h6');
-                if (header) header.textContent = `Detail #${index + 1}`;
+                if (header) header.innerHTML = `<i class="fas fa-circle-notch mr-2"></i>Detail #${index + 1}`;
                 
-                // Perbarui nama input
+                // Update input names
                 const inputs = detail.querySelectorAll('input');
                 inputs.forEach(input => {
                     input.name = input.name.replace(/detail\]\[\d+\]/, `detail][${index + 1}]`);
                 });
             });
             
-            // Perbarui counter
+            // Update counter
             detailCounters[varianId] = remainingDetails.length;
         } else {
             alert('Varian harus memiliki minimal 1 detail');

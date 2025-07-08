@@ -3,24 +3,50 @@
 @section('content')
 
 <style>
-    body {
-        font-family: 'Poppins', sans-serif;
-        background-color: #eef0ff;
-        margin: 0;
-        padding: 30px 20px;
+    :root {
+        --primary-color: #5C48EE;
+        --primary-light: #eef0ff;
+        --secondary-color: #6c757d;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --warning-color: #ffc107;
+        --info-color: #17a2b8;
+        --light-color: #f8f9fa;
+        --dark-color: #343a40;
+        --border-radius: 8px;
+        --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        --transition: all 0.3s ease;
     }
 
-    .main-container {
+    .rak-container {
         max-width: 800px;
-        margin: 0 auto;
+        margin: 30px auto;
+        padding: 0 15px;
     }
 
     .card {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        transition: var(--transition);
+        overflow: hidden;
+    }
+
+    .card-header {
+        padding: 20px 25px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         background-color: white;
-        padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        margin-top: 40px;
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--dark-color);
+        margin: 0;
+    }
+
+    .card-body {
+        padding: 25px;
     }
 
     .form-group {
@@ -29,100 +55,146 @@
 
     label {
         font-weight: 600;
-        font-size: 13px;
-        margin-bottom: 6px;
+        font-size: 0.875rem;
+        margin-bottom: 8px;
         display: block;
-        color: #555;
+        color: var(--secondary-color);
     }
 
-    input, textarea {
+    input, textarea, select {
         width: 100%;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        font-size: 13px;
+        padding: 12px 15px;
+        border: 1px solid #e0e0e0;
+        border-radius: var(--border-radius);
+        font-size: 0.875rem;
         box-sizing: border-box;
+        transition: var(--transition);
+        background-color: #f8f9fa;
+    }
+
+    input:focus, textarea:focus, select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        background-color: white;
+        box-shadow: 0 0 0 3px rgba(92, 72, 238, 0.1);
     }
 
     .form-actions {
         margin-top: 30px;
         display: flex;
         justify-content: space-between;
+        gap: 15px;
     }
 
     .btn {
-        padding: 10px 20px;
-        border-radius: 6px;
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
+        padding: 12px 20px;
+        border-radius: var(--border-radius);
+        font-weight: 500;
+        font-size: 0.875rem;
         border: none;
-        text-decoration: none;
-        display: inline-block;
+        cursor: pointer;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
     }
 
     .btn-primary {
-        background-color: #5C48EE;
+        background-color: var(--primary-color);
         color: white;
     }
 
+    .btn-primary:hover {
+        background-color: #4a3ac4;
+        transform: translateY(-2px);
+    }
+
     .btn-outline {
+        border: 1px solid var(--primary-color);
         background-color: white;
-        color: #5C48EE;
-        border: 1px solid #5C48EE;
+        color: var(--primary-color);
+    }
+
+    .btn-outline:hover {
+        background-color: var(--primary-light);
     }
 
     .text-danger {
-        font-size: 12px;
-        color: #dc3545;
+        font-size: 0.75rem;
+        color: var(--danger-color);
         margin-top: 5px;
+    }
+
+    .gudang-info {
+        font-size: 0.875rem;
+        color: var(--secondary-color);
+        margin-bottom: 20px;
+        padding: 10px 15px;
+        background-color: #f8f9fa;
+        border-radius: var(--border-radius);
+    }
+
+    .gudang-info strong {
+        color: var(--dark-color);
     }
 </style>
 
-<div class="main-container">
+<div class="rak-container">
     <div class="card">
-        <h2 style="margin-bottom: 25px;">Tambah Rak untuk Gudang: <strong>{{ $gudang->nama }}</strong></h2>
-
-        <form action="{{ route('gudang.rak.store', $gudang->id) }}" method="POST">
-            @csrf
-
-            <div class="form-group">
-                <label for="kode_rak">Kode Rak</label>
-                <input type="text" name="kode_rak" id="kode_rak" value="{{ old('kode_rak') }}">
-                @error('kode_rak')
-                    <div class="text-danger">{{ $message }}</div>
-                @enderror
+        <div class="card-header">
+            <h2 class="card-title">Tambah Rak</h2>
+        </div>
+        
+        <div class="card-body">
+            <div class="gudang-info">
+                Untuk Gudang: <strong>{{ $gudang->nama }}</strong>
             </div>
 
-            <div class="form-group">
-                <label for="nama_rak">Nama Rak</label>
-                <input type="text" name="nama_rak" id="nama_rak" value="{{ old('nama_rak') }}">
-                @error('nama_rak')
-                    <div class="text-danger">{{ $message }}</div>
-                @enderror
-            </div>
+            <form action="{{ route('gudang.rak.store', $gudang->id) }}" method="POST">
+                @csrf
 
-            <div class="form-group">
-                <label for="deskripsi">Deskripsi</label>
-                <textarea name="deskripsi" id="deskripsi" rows="3">{{ old('deskripsi') }}</textarea>
-                @error('deskripsi')
-                    <div class="text-danger">{{ $message }}</div>
-                @enderror
-            </div>
+                <div class="form-group">
+                    <label for="kode_rak">Kode Rak</label>
+                    <input type="text" name="kode_rak" id="kode_rak" value="{{ old('kode_rak') }}" required>
+                    @error('kode_rak')
+                        <div class="text-danger">{{ $message }}</div>
+                    @enderror
+                </div>
 
-            <div class="form-group">
-                <label for="kapasitas">Kapasitas (opsional)</label>
-                <input type="number" name="kapasitas" id="kapasitas" value="{{ old('kapasitas') }}">
-                @error('kapasitas')
-                    <div class="text-danger">{{ $message }}</div>
-                @enderror
-            </div>
+                <div class="form-group">
+                    <label for="nama_rak">Nama Rak</label>
+                    <input type="text" name="nama_rak" id="nama_rak" value="{{ old('nama_rak') }}" required>
+                    @error('nama_rak')
+                        <div class="text-danger">{{ $message }}</div>
+                    @enderror
+                </div>
 
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Simpan Rak</button>
-                <a href="{{ route('gudang.show', $gudang->id) }}" class="btn btn-outline">Batal</a>
-            </div>
-        </form>
+                <div class="form-group">
+                    <label for="deskripsi">Deskripsi</label>
+                    <textarea name="deskripsi" id="deskripsi" rows="3">{{ old('deskripsi') }}</textarea>
+                    @error('deskripsi')
+                        <div class="text-danger">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="kapasitas">Kapasitas (opsional)</label>
+                    <input type="number" name="kapasitas" id="kapasitas" value="{{ old('kapasitas') }}">
+                    @error('kapasitas')
+                        <div class="text-danger">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Simpan Rak
+                    </button>
+                    <a href="{{ route('gudang.show', $gudang->id) }}" class="btn btn-outline">
+                        <i class="fas fa-times"></i> Batal
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 

@@ -13,26 +13,54 @@ use Illuminate\Support\Str;
 
 class ProdukController extends Controller
 {
-    public function index()
-    {
-        $produks = Produk::with(['kategori', 'varian.detail', 'suppliers'])
-            ->withCount(['varian as total_varian'])
-            ->latest()
-            ->get();
-        
-        // Hitung total stok secara manual
-        $produks->each(function ($produk) {
-            $produk->total_stok = $produk->varian->sum(function ($varian) {
-                return $varian->detail->sum('stok');
-            });
-        });
+    public function index(Request $request)
+{
+    // Start building the query with eager loading
+    $query = Produk::with(['varian.detail']) // Only load necessary relationships
+                  ->withCount(['varian as total_varian'])
+                  ->latest();
 
-        $kategoris = KategoriProduk::all();
-        $suppliers = Supplier::all();
-        
-        return view('produk.index', compact('produks', 'kategoris', 'suppliers'));
+    // Apply search filter if present
+    if ($request->has('search')) {
+        $searchTerm = $request->search;
+        $query->where(function($q) use ($searchTerm) {
+            $q->where('nama_produk', 'like', '%'.$searchTerm.'%')
+              ->orWhere('sku', 'like', '%'.$searchTerm.'%')
+              ->orWhere('kategori', 'like', '%'.$searchTerm.'%');
+        });
     }
 
+    // Apply category filter if present
+    if ($request->filled('category')) {
+        $query->where('kategori', $request->category);
+    }
+
+    // Apply status filter if present
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    // Paginate the results
+    $produks = $query->paginate(10);
+
+    // Calculate total stock for each product
+    $produks->each(function ($produk) {
+        $produk->total_stok = $produk->varian->sum(function ($varian) {
+            return $varian->detail->sum('stok');
+        });
+    });
+
+    // Get distinct categories for filter dropdown
+    $categories = Produk::distinct()->pluck('kategori')->filter();
+
+    return view('produk.index', [
+        'produks' => $produks,
+        'categories' => $categories,
+        'search' => $request->search,
+        'selectedCategory' => $request->category,
+        'selectedStatus' => $request->status
+    ]);
+}
     public function create()
     {
         $kategoriProduks = KategoriProduk::pluck('nama_kategori', 'nama_kategori');

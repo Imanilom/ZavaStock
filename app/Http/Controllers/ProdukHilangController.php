@@ -12,12 +12,30 @@ use Illuminate\Support\Facades\DB;
 
 class ProdukHilangController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $reports = ProdukHilang::with(['produk', 'user', 'keterangan', 'verifier'])
-            ->latest()
-            ->paginate(20);
-            
+        $query = ProdukHilang::with(['produk', 'keterangan', 'user'])
+            ->latest();
+
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->whereHas('produk', function($q) use ($search) {
+                    $q->where('nama_produk', 'like', '%'.$search.'%')
+                    ->orWhere('sku', 'like', '%'.$search.'%');
+                })
+                ->orWhereHas('keterangan', function($q) use ($search) {
+                    $q->where('nama', 'like', '%'.$search.'%');
+                });
+            });
+        }
+
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $reports = $query->paginate(10);
+
         return view('produk-hilang.index', compact('reports'));
     }
 

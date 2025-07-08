@@ -41,12 +41,6 @@
     <script src="{{ asset('js/sb-admin-2.min.js') }}"></script>
 
     <!-- Footer -->
-    <center>
-        <blockquote class="blockquote text-center" style="margin-top: 600px;">
-            <footer class="blockquote-footer" style="color: #000; font-family: 'Alata', sans-serif; text-align: center; font-weight: bold;">
-                © Mode Aktif
-            </footer>
-        </blockquote>
-    </center>
+   
 </body>
 </html>

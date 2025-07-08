@@ -16,4 +16,9 @@ class ProdukDetail extends Model
     {
         return $this->belongsTo(ProdukVarian::class, 'varian_id');
     }
+
+    public function produk()
+    {
+        return $this->varian->produk();
+    }
 }

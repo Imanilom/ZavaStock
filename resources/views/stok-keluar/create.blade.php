@@ -3,136 +3,207 @@
 @section('content')
 
 <style>
-    body {
-        font-family: 'Poppins', sans-serif;
-        background-color: #eef0ff;
-        margin: 0;
-        padding: 30px 20px;
+    :root {
+        --primary-color: #5C48EE;
+        --primary-light: #eef0ff;
+        --secondary-color: #6c757d;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --warning-color: #ffc107;
+        --info-color: #17a2b8;
+        --light-color: #f8f9fa;
+        --dark-color: #343a40;
+        --border-radius: 8px;
+        --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        --transition: all 0.3s ease;
     }
-
-    .main-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        width: 100%;
+    
+    .stok-container {
+        max-width: 1000px;
+        margin: 30px auto;
+        padding: 0 15px;
     }
-
+    
     .card {
-        background-color: white;
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        width: 100%;
-        box-sizing: border-box;
-        margin-top: 40px;
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        transition: var(--transition);
+        overflow: hidden;
+        margin-bottom: 30px;
     }
-
-    .header-row {
+    
+    .card-header {
+        padding: 20px 25px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
+        background-color: white;
     }
-
-    .header-row h1 {
-        font-size: 20px;
-        font-weight: 700;
+    
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--dark-color);
         margin: 0;
     }
-
+    
+    .card-body {
+        padding: 25px;
+    }
+    
+    .form-row {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+    
     .form-group {
+        flex: 1;
         margin-bottom: 15px;
     }
-
+    
     .form-group label {
         display: block;
-        font-size: 12px;
-        font-weight: 500;
-        margin-bottom: 5px;
-        color: #333;
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-bottom: 6px;
+        color: var(--dark-color);
     }
-
+    
+    .form-select,
     .form-control {
         width: 100%;
-        padding: 8px 12px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-size: 12px;
-        box-sizing: border-box;
+        padding: 10px 15px;
+        border-radius: var(--border-radius);
+        border: 1px solid #e0e0e0;
+        font-size: 0.875rem;
+        transition: var(--transition);
+        background-color: #f8f9fa;
     }
-
-    .form-select {
-        width: 100%;
-        padding: 8px 12px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-size: 12px;
-        box-sizing: border-box;
+    
+    .form-select:focus,
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-color);
         background-color: white;
+        box-shadow: 0 0 0 3px rgba(92, 72, 238, 0.1);
     }
-
+    
     .btn {
-        padding: 8px 16px;
-        border-radius: 6px;
-        font-size: 12px;
-        font-weight: 600;
-        cursor: pointer;
+        padding: 10px 20px;
+        border-radius: var(--border-radius);
+        font-weight: 500;
+        font-size: 0.875rem;
         border: none;
-        text-decoration: none;
-        display: inline-block;
+        cursor: pointer;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
     }
-
+    
     .btn-primary {
-        background-color: #5C48EE;
+        background-color: var(--primary-color);
         color: white;
     }
-
+    
+    .btn-primary:hover {
+        background-color: #4a3ac4;
+        transform: translateY(-2px);
+    }
+    
     .btn-outline {
+        border: 1px solid var(--primary-color);
         background-color: white;
-        color: #5C48EE;
-        border: 1px solid #5C48EE;
+        color: var(--primary-color);
     }
-
-    .row {
+    
+    .btn-outline:hover {
+        background-color: var(--primary-light);
+    }
+    
+    .error-message {
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 15px;
+        border-radius: var(--border-radius);
+        margin-bottom: 20px;
+        border-left: 4px solid #dc3545;
+    }
+    
+    .error-message ul {
+        margin: 0;
+        padding-left: 20px;
+    }
+    
+    .produk-info {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: var(--border-radius);
+        margin-top: -10px;
+        margin-bottom: 20px;
+        border-left: 4px solid var(--primary-color);
+        display: none;
+    }
+    
+    .produk-info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    
+    .produk-info-item {
         display: flex;
-        flex-wrap: wrap;
-        margin: 0 -10px;
+        gap: 8px;
+        font-size: 0.875rem;
     }
-
-    .col-md-6 {
-        width: 50%;
-        padding: 0 10px;
-        box-sizing: border-box;
+    
+    .produk-info-label {
+        font-weight: 600;
+        min-width: 80px;
+        color: var(--dark-color);
     }
-
+    
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 20px;
+    }
+    
     @media (max-width: 768px) {
-        .col-md-6 {
-            width: 100%;
+        .form-row {
+            flex-direction: column;
+        }
+        
+        .produk-info-grid {
+            grid-template-columns: 1fr;
         }
     }
 </style>
 
-<div class="main-container">
+<div class="stok-container">
     <div class="card">
-        <div class="header-row">
-            <h1>Form Tambah Stok Keluar</h1>
+        <div class="card-header">
+            <h2 class="card-title">Form Tambah Stok Keluar</h2>
         </div>
-
-        @if ($errors->any())
-            <div style="color: red; margin-bottom: 15px;">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-        <form action="{{ route('stok-keluar.store') }}" method="POST">
-            @csrf
-
-            <div class="row">
-                <div class="col-md-6">
-                    {{-- Produk --}}
+        <div class="card-body">
+            @if ($errors->any())
+                <div class="error-message">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+            
+            <form action="{{ route('stok-keluar.store') }}" method="POST">
+                @csrf
+                
+                <div class="form-row">
                     <div class="form-group">
                         <label for="produk_id">Produk <span style="color: red;">*</span></label>
                         <select name="produk_id" id="produk_id" class="form-select" required>
@@ -144,24 +215,23 @@
                             @endforeach
                         </select>
                     </div>
-
-                    {{-- Varian --}}
+                    
                     <div class="form-group">
                         <label for="varian_id">Varian</label>
                         <select name="varian_id" id="varian_id" class="form-select">
                             <option value="">-- Pilih Varian --</option>
                         </select>
                     </div>
-
-                    {{-- Detail --}}
+                </div>
+                
+                <div class="form-row">
                     <div class="form-group">
                         <label for="detail_id">Detail</label>
                         <select name="detail_id" id="detail_id" class="form-select">
                             <option value="">-- Pilih Detail --</option>
                         </select>
                     </div>
-
-                    {{-- Gudang --}}
+                    
                     <div class="form-group">
                         <label for="gudang_id">Gudang <span style="color: red;">*</span></label>
                         <select name="gudang_id" id="gudang_id" class="form-select" required>
@@ -174,17 +244,15 @@
                         </select>
                     </div>
                 </div>
-
-                <div class="col-md-6">
-                    {{-- Rak --}}
+                
+                <div class="form-row">
                     <div class="form-group">
                         <label for="rak">Rak</label>
                         <select name="rak" id="rak" class="form-select">
                             <option value="">-- Pilih Rak --</option>
                         </select>
                     </div>
-
-                    {{-- Customer --}}
+                    
                     <div class="form-group">
                         <label for="customer_id">Penerima (Customer)</label>
                         <select name="customer_id" id="customer_id" class="form-select">
@@ -196,110 +264,185 @@
                             @endforeach
                         </select>
                     </div>
-
-                    {{-- Kuantitas --}}
+                </div>
+                
+                <div class="form-row">
                     <div class="form-group">
                         <label for="kuantitas">Jumlah Keluar <span style="color: red;">*</span></label>
                         <input type="number" name="kuantitas" id="kuantitas" class="form-control" min="1" required value="{{ old('kuantitas') }}">
                     </div>
-
-                    {{-- Catatan --}}
+                    
                     <div class="form-group">
                         <label for="catatan">Catatan</label>
                         <textarea name="catatan" id="catatan" rows="2" class="form-control">{{ old('catatan') }}</textarea>
                     </div>
                 </div>
-            </div>
-
-            <div style="text-align: right; margin-top: 20px;">
-                <button type="submit" class="btn btn-primary">Simpan Stok Keluar</button>
-                <a href="{{ route('stok-keluar.index') }}" class="btn btn-outline">Batal</a>
-            </div>
-        </form>
+                
+                <div class="produk-info" id="produkInfo">
+                    <div class="produk-info-grid">
+                        <div class="produk-info-item">
+                            <span class="produk-info-label">SKU:</span>
+                            <span id="infoSku">-</span>
+                        </div>
+                        <div class="produk-info-item">
+                            <span class="produk-info-label">Produk:</span>
+                            <span id="infoProduk">-</span>
+                        </div>
+                        <div class="produk-info-item">
+                            <span class="produk-info-label">Varian:</span>
+                            <span id="infoVarian">-</span>
+                        </div>
+                        <div class="produk-info-item">
+                            <span class="produk-info-label">Detail:</span>
+                            <span id="infoDetail">-</span>
+                        </div>
+                        <div class="produk-info-item">
+                            <span class="produk-info-label">Stok:</span>
+                            <span id="infoStok">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Simpan Stok Keluar
+                    </button>
+                    <a href="{{ route('stok-keluar.index') }}" class="btn btn-outline">
+                        <i class="fas fa-times"></i> Batal
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js "></script>
 <script>
-    const produks = @json($produks);
+    const produkData = @json($produks);
+    
+    function updateProductInfo() {
+        const productId = $('#produk_id').val();
+        const variantId = $('#varian_id').val();
+        const detailId = $('#detail_id').val();
+        
+        if (!productId) return;
+        
+        const product = produkData.find(p => p.id == productId);
+        if (!product) return;
+        
+        $('#infoSku').text(product.text.split(' - ')[0]);
+        $('#infoProduk').text(product.text.split(' - ')[1]);
+        
+        if (variantId && product.varian) {
+            const variant = product.varian.find(v => v.id == variantId);
+            if (variant) {
+                $('#infoVarian').text(variant.text);
+                
+                if (detailId && variant.detail) {
+                    const detail = variant.detail.find(d => d.id == detailId);
+                    if (detail) {
+                        $('#infoDetail').text(detail.text);
+                        $('#infoStok').text(detail.stok || '-');
+                    } else {
+                        $('#infoDetail').text('-');
+                        $('#infoStok').text('-');
+                    }
+                }
+            }
+        }
+        
+        $('#produkInfo').show();
+    }
+    
+$('#produk_id').on('change', function () {
+    const productId = $(this).val();
+    const varianSelect = $('#varian_id').empty().append('<option value="">-- Pilih Varian --</option>');
+    $('#detail_id').empty().append('<option value="">-- Pilih Detail --</option>');
 
-    $(function () {
-        // Saat pilih produk, load varian
-        $('#produk_id').on('change', function () {
-            const produkId = $(this).val();
-            $('#varian_id').html('<option value="">-- Pilih Varian --</option>');
-            $('#detail_id').html('<option value="">-- Pilih Detail --</option>');
+    if (!productId) {
+        $('#produkInfo').hide();
+        return;
+    }
 
-            if (!produkId) return;
+    const product = produkData.find(p => p.id == productId);
+    if (!product) return;
 
-            const produk = produks.find(p => p.id == produkId);
-            if (!produk) return;
+    // ✅ PERBAIKAN DI SINI
+    if (product.varian && Array.isArray(product.varian)) {
+        product.varian.forEach(variant => {
+            varianSelect.append(`<option value="${variant.id}">${variant.text}</option>`);
+        });
+    }
 
-            produk.varian.forEach(varian => {
-                const selected = varian.id == '{{ old('varian_id') }}' ? 'selected' : '';
-                $('#varian_id').append(`<option value="${varian.id}" ${selected}>${varian.text}</option>`);
+    updateProductInfo();
+});
+
+$('#varian_id').on('change', function () {
+    const productId = $('#produk_id').val();
+    const varianId = $(this).val();
+    const detailSelect = $('#detail_id').empty().append('<option value="">-- Pilih Detail --</option>');
+
+    if (!productId || !varianId) {
+        $('#infoVarian').text('-');
+        $('#infoDetail').text('-');
+        $('#infoStok').text('-');
+        return;
+    }
+
+    const product = produkData.find(p => p.id == productId);
+    const variant = product?.varian?.find(v => v.id == varianId);
+
+    if (variant) {
+        $('#infoVarian').text(variant.text);
+
+        if (variant.detail && Array.isArray(variant.detail)) {
+            variant.detail.forEach(detailItem => {
+                detailSelect.append(`<option value="${detailItem.id}">${detailItem.text}</option>`);
             });
+        }
+    }
 
-            // Trigger varian change kalau ada old varian_id
-            if ('{{ old('varian_id') }}') {
-                $('#varian_id').trigger('change');
+    updateProductInfo();
+});
+
+    
+    $('#detail_id').on('change', function () {
+        updateProductInfo();
+    });
+    
+    $('#gudang_id').on('change', function () {
+        const gudangId = $(this).val();
+        const rakSelect = $('#rak').empty().append('<option value="">Memuat...</option>');
+        
+        if (!gudangId) return;
+        
+        $.ajax({
+            url: `/api/gudang/${gudangId}/rak`,
+            type: 'GET',
+            success: function (data) {
+                rakSelect.empty().append('<option value="">-- Pilih Rak --</option>');
+                data.forEach(rak => {
+                    rakSelect.append(`<option value="${rak.kode_rak}">${rak.nama_rak} (${rak.kode_rak})</option>`);
+                });
+            },
+            error: function () {
+                rakSelect.empty().append('<option value="">Gagal memuat rak</option>');
             }
         });
-
-        // Saat pilih varian, load detail
-        $('#varian_id').on('change', function () {
-            const varianId = $(this).val();
-            $('#detail_id').html('<option value="">-- Pilih Detail --</option>');
-
-            if (!varianId) return;
-
-            const produkId = $('#produk_id').val();
-            const produk = produks.find(p => p.id == produkId);
-            if (!produk) return;
-
-            const varian = produk.varian.find(v => v.id == varianId);
-            if (!varian) return;
-
-            varian.detail.forEach(detail => {
-                const selected = detail.id == '{{ old('detail_id') }}' ? 'selected' : '';
-                $('#detail_id').append(`<option value="${detail.id}" ${selected}>${detail.text}</option>`);
-            });
-        });
-
-        // Load rak berdasarkan gudang via ajax
-        $('#gudang_id').on('change', function () {
-            const gudangId = $(this).val();
-            $('#rak').html('<option value="">-- Pilih Rak --</option>');
-            if (!gudangId) return;
-
-            $.ajax({
-                url: `/api/gudang/${gudangId}/rak`,
-                type: 'GET',
-                success: function (data) {
-                    if (!data.length) {
-                        $('#rak').append('<option value="">Tidak ada rak tersedia</option>');
-                    } else {
-                        data.forEach(rak => {
-                            const selected = rak.kode_rak == '{{ old('rak') }}' ? 'selected' : '';
-                            $('#rak').append(`<option value="${rak.kode_rak}" ${selected}>${rak.nama_rak} (${rak.kode_rak})</option>`);
-                        });
-                    }
-                },
-                error: function () {
-                    $('#rak').append('<option value="">Gagal memuat rak</option>');
-                }
-            });
-        });
-
-        // Trigger load jika ada old value supaya form edit bisa
-        @if(old('produk_id'))
-            $('#produk_id').trigger('change');
-        @endif
-
-        @if(old('gudang_id'))
-            $('#gudang_id').trigger('change');
-        @endif
     });
+    
+    // Trigger initial load if there are old input values
+    @if(old('produk_id'))
+        $('#produk_id').trigger('change');
+    @endif
+    
+    @if(old('varian_id'))
+        $('#varian_id').trigger('change');
+    @endif
+    
+    @if(old('gudang_id'))
+        $('#gudang_id').trigger('change');
+    @endif
 </script>
 
 @endsection

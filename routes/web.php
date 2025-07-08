@@ -12,18 +12,23 @@ use App\Http\Controllers\ProdukHilangController;
 use App\Http\Controllers\StokMasukController;
 use App\Http\Controllers\StokKeluarController;
 use App\Http\Controllers\StokOpnameController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('home');  // Make sure this line has ->name('home')
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+
+
 // Rute untuk customer
 Route::middleware(['auth'])->group(function () {
-    
+    // routes/web.php
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
     // Produk - Customer bisa CRUD
     Route::prefix('produk')->group(function () {
         Route::get('/', [ProdukController::class, 'index'])->name('produk.index');

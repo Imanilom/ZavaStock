@@ -1,44 +1,57 @@
 @extends('layouts.app')
+
 @section('title', 'Manajemen Supplier')
 @section('content')
 
 <style>
-    body {
-        font-family: 'Poppins', sans-serif;
-        background-color: #eef0ff;
-        margin: 0;
-        padding: 30px 20px;
+    :root {
+        --primary-color: #5C48EE;
+        --primary-light: #eef0ff;
+        --secondary-color: #6c757d;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --warning-color: #ffc107;
+        --info-color: #17a2b8;
+        --light-color: #f8f9fa;
+        --dark-color: #343a40;
+        --border-radius: 8px;
+        --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        --transition: all 0.3s ease;
     }
 
-    .main-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        width: 100%;
+    .supplier-container {
+        max-width: 1400px;
+        margin: 20px auto;
+        padding: 0 15px;
     }
 
     .card {
-        background-color: white;
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        width: 100%;
-        box-sizing: border-box;
-        transition: all 0.4s ease;
-        margin-top: 40px;
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        transition: var(--transition);
+        overflow: hidden;
+        margin-bottom: 30px;
     }
 
-    .header-row {
+    .card-header {
+        padding: 20px 25px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
+        background-color: white;
     }
 
-    .header-row h1 {
-        font-size: 20px;
-        font-weight: 700;
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--dark-color);
         margin: 0;
-        transition: all 0.3s ease;
+    }
+
+    .card-body {
+        padding: 25px;
     }
 
     .action-buttons {
@@ -47,77 +60,189 @@
     }
 
     .btn {
-        font-size: 10px;
-        padding: 10px 16px;
-        border-radius: 8px;
-        font-weight: 600;
+        padding: 10px 20px;
+        border-radius: var(--border-radius);
+        font-weight: 500;
+        font-size: 0.875rem;
         border: none;
         cursor: pointer;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
     }
 
     .btn-primary {
-        background-color: #5C48EE;
+        background-color: var(--primary-color);
         color: white;
     }
 
+    .btn-primary:hover {
+        background-color: #4a3ac4;
+        transform: translateY(-2px);
+    }
+
     .btn-outline {
-        border: 1px solid #5C48EE;
+        border: 1px solid var(--primary-color);
         background-color: white;
-        color: #5C48EE;
+        color: var(--primary-color);
     }
 
-    .search-bar {
-        width: 100%;
-        padding: 10px;
+    .btn-outline:hover {
+        background-color: var(--primary-light);
+    }
+
+    .search-box {
+        flex: 1;
+        max-width: 400px;
+        position: relative;
         margin-bottom: 20px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-        font-size: 10px;
     }
 
-    table {
+    .search-input {
+        width: 100%;
+        padding: 12px 15px 12px 40px;
+        border-radius: var(--border-radius);
+        border: 1px solid #e0e0e0;
+        font-size: 0.875rem;
+        transition: var(--transition);
+        background-color: #f8f9fa;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        background-color: white;
+        box-shadow: 0 0 0 3px rgba(92, 72, 238, 0.1);
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--secondary-color);
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .supplier-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 10px;
-        background-color: white;
+        font-size: 0.875rem;
     }
 
-    table thead {
-        background-color: #f9f9f9;
+    .supplier-table thead {
+        background-color: #f8f9fa;
     }
 
-    th, td {
-        padding: 12px;
-        border-bottom: 1px solid #eee;
+    .supplier-table th {
+        padding: 15px;
         text-align: left;
-    }
-
-    th {
         font-weight: 600;
-        color: #333;
+        color: var(--dark-color);
+        border-bottom: 2px solid #e9ecef;
     }
 
-    .btn-edit,
-    .btn-delete {
+    .supplier-table td {
+        padding: 15px;
+        border-bottom: 1px solid #e9ecef;
+        vertical-align: middle;
+    }
+
+    .supplier-table tr:hover {
+        background-color: rgba(92, 72, 238, 0.03);
+    }
+
+    .supplier-foto {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 1px solid #eee;
+    }
+
+    .no-image {
+        width: 40px;
+        height: 40px;
+        background: #f8f9fa;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #adb5bd;
+    }
+
+    .action-cell {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-action {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         border: none;
         background: none;
-        font-size: 14px;
         cursor: pointer;
+        transition: var(--transition);
     }
 
     .btn-edit {
-        color: #28a745;
+        color: var(--success-color);
+        background-color: rgba(40, 167, 69, 0.1);
+    }
+
+    .btn-edit:hover {
+        background-color: rgba(40, 167, 69, 0.2);
     }
 
     .btn-delete {
-        color: #dc3545;
+        color: var(--danger-color);
+        background-color: rgba(220, 53, 69, 0.1);
     }
 
+    .btn-delete:hover {
+        background-color: rgba(220, 53, 69, 0.2);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+    }
+
+    .empty-icon {
+        font-size: 3rem;
+        color: #adb5bd;
+        margin-bottom: 15px;
+    }
+
+    .empty-text {
+        color: #6c757d;
+        margin-bottom: 20px;
+    }
+
+    .pagination-container {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 20px;
+    }
+
+    /* Form Styles */
     .form-supplier {
         display: none;
         opacity: 0;
         transform: translateY(10px);
         transition: all 0.4s ease;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: var(--border-radius);
+        margin-top: 20px;
     }
 
     .form-supplier.show {
@@ -126,227 +251,282 @@
         transform: translateY(0);
     }
 
-    .supplier-foto {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        object-fit: cover;
-        margin-right: 6px;
-        vertical-align: middle;
+    .form-group {
+        margin-bottom: 15px;
     }
 
-    .form-supplier label {
-        font-size: 10px;
+    .form-label {
+        display: block;
+        margin-bottom: 5px;
         font-weight: 500;
+        color: var(--dark-color);
+        font-size: 0.875rem;
     }
 
-    .form-supplier .form-group {
-        margin-bottom: 12px;
-    }
-
-    .form-supplier .form-control {
-        padding: 8px 10px;
-        font-size: 10px;
-        border-radius: 6px;
-        border: 1px solid #ccc;
+    .form-control {
         width: 100%;
-        box-sizing: border-box;
+        padding: 10px 15px;
+        border: 1px solid #e0e0e0;
+        border-radius: var(--border-radius);
+        font-size: 0.875rem;
+        transition: var(--transition);
     }
 
-    .form-supplier textarea.form-control {
-        resize: vertical;
-        min-height: 60px;
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(92, 72, 238, 0.1);
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    @media (max-width: 768px) {
+        .card-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+        
+        .action-buttons {
+            width: 100%;
+            justify-content: flex-end;
+        }
     }
 </style>
 
-<div class="main-container">
+<div class="supplier-container">
     <div class="card">
-        <div class="header-row">
-            <h1 id="judulSupplier">Supplier</h1>
+        <div class="card-header">
+            <h2 class="card-title">Manajemen Supplier</h2>
             <div class="action-buttons">
-                <button class="btn btn-primary" onclick="showFormSupplier('add')" id="btnAdd">+ Add</button>
-                <a href="{{ route('supplier.export') }}" class="btn btn-outline">Download</a>
+                <button class="btn btn-primary" onclick="showFormSupplier('add')" id="btnAddSupplier">
+                    <i class="fas fa-plus"></i> Tambah Supplier
+                </button>
             </div>
         </div>
+        
+        <div class="card-body">
+            <!-- Search Box -->
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="search" class="search-input" placeholder="Cari supplier..." id="searchInputSupplier">
+            </div>
 
-        <!-- Form Tambah/Edit -->
-        <div id="formSupplier" class="form-supplier">
-            <form method="POST" id="supplierForm" action="{{ route('supplier.store') }}" enctype="multipart/form-data">
+            <!-- Form Tambah/Edit -->
+            <form method="POST" id="supplierForm" action="{{ route('supplier.store') }}" enctype="multipart/form-data" class="form-supplier">
                 @csrf
                 <input type="hidden" name="id" id="supplierId">
 
                 <div class="form-group">
-                    <label>Foto Supplier</label>
+                    <label class="form-label">Foto Supplier</label>
                     <input type="file" name="foto" class="form-control" accept="image/*">
                 </div>
 
                 <div class="form-group">
-                    <label>Nama</label>
-                    <input type="text" name="name" id="namaInput" class="form-control" required>
+                    <label class="form-label">Nama</label>
+                    <input type="text" name="name" id="namaInputSupplier" class="form-control" required>
                 </div>
 
                 <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" name="email" id="emailInput" class="form-control" required>
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" id="emailInputSupplier" class="form-control" required>
                 </div>
 
                 <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" name="password" id="passwordInput" class="form-control" required>
+                    <label class="form-label">Password</label>
+                    <input type="password" name="password" id="passwordInputSupplier" class="form-control" required>
                 </div>
 
                 <div class="form-group">
-                    <label>Konfirmasi Password</label>
+                    <label class="form-label">Konfirmasi Password</label>
                     <input type="password" name="password_confirmation" class="form-control" required>
                 </div>
 
                 <div class="form-group">
-                    <label>Telepon</label>
-                    <input type="text" name="telepon" id="teleponInput" class="form-control">
+                    <label class="form-label">Telepon</label>
+                    <input type="text" name="telepon" id="teleponInputSupplier" class="form-control">
                 </div>
 
                 <div class="form-group">
-                    <label>Alamat</label>
-                    <textarea name="alamat" id="alamatInput" class="form-control"></textarea>
+                    <label class="form-label">Alamat</label>
+                    <textarea name="alamat" id="alamatInputSupplier" class="form-control" rows="3"></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label>Catatan</label>
-                    <textarea name="catatan" id="catatanInput" class="form-control"></textarea>
+                    <label class="form-label">Catatan</label>
+                    <textarea name="catatan" id="catatanInputSupplier" class="form-control" rows="3"></textarea>
                 </div>
 
-                <div class="form-group text-right mt-3">
+                <div class="form-actions">
                     <button type="submit" class="btn btn-primary">Simpan</button>
                     <button type="button" class="btn btn-outline" onclick="hideFormSupplier()">Batal</button>
                 </div>
             </form>
-        </div>
 
-        <!-- Tabel Data -->
-        <div id="tabelSupplier">
-            <input type="search" class="search-bar" placeholder="Cari supplier...">
-
-            <form method="POST" action="{{ route('supplier.delete.multiple') }}">
-                @csrf
-                <table>
-                    <thead>
-                        <tr>
-                            <th><input type="checkbox" onclick="toggleAll(this)"></th>
-                            <th>Foto</th>
-                            <th>Nama</th>
-                            <th>Email</th>
-                            <th>Telepon</th>
-                            <th>Alamat</th>
-                            <th>Catatan</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($suppliers as $supplier)
+            <!-- Tabel Data -->
+            <div id="tableSupplier" class="table-responsive">
+                <form method="POST" action="{{ route('supplier.delete.multiple') }}" id="deleteSupplierForm">
+                    @csrf
+                    @method('DELETE')
+                    <table class="supplier-table">
+                        <thead>
                             <tr>
-                                <td><input type="checkbox" name="ids[]" value="{{ $supplier->id }}" class="row-checkbox"></td>
-                                <td>
-                                    @if ($supplier->foto)
-                                        <img src="{{ asset('images/supplier/' . $supplier->foto) }}" class="supplier-foto"
-                                            alt="Foto">
-                                    @else
-                                        <span>-</span>
-                                    @endif
-                                </td>
-                                <td>{{ $supplier->nama }}</td>
-                                <td>{{ optional($supplier->user)->email ?? '-' }}</td>
-                                <td>{{ $supplier->telepon }}</td>
-                                <td>{{ $supplier->alamat }}</td>
-                                <td>{{ $supplier->catatan }}</td>
-                                <td>
-                                    <button type="button" class="btn-edit"
-                                        onclick='editSupplier({{ json_encode($supplier) }})'>
-                                        <i class="fas fa-pen"></i>
-                                    </button>
-                                    <form method="POST"
-                                        action="{{ route('supplier.destroy', $supplier->id) }}"
-                                        style="display:inline;"
-                                        onsubmit="return confirm('Yakin ingin menghapus supplier ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn-delete">
-                                            <i class="fas fa-trash"></i>
+                                <th width="5%"><input type="checkbox" onclick="toggleAll(this)"></th>
+                                <th width="8%">Foto</th>
+                                <th>Nama</th>
+                                <th>Email</th>
+                                <th>Telepon</th>
+                                <th>Alamat</th>
+                                <th>Catatan</th>
+                                <th width="12%">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($suppliers as $supplier)
+                                <tr>
+                                    <td><input type="checkbox" name="ids[]" value="{{ $supplier->id }}" class="row-checkbox"></td>
+                                    <td>
+                                        @if ($supplier->foto)
+                                            <img src="{{ asset('images/supplier/' . $supplier->foto) }}" class="supplier-foto" alt="Foto Supplier">
+                                        @else
+                                            <div class="no-image">
+                                                <i class="fas fa-user"></i>
+                                            </div>
+                                        @endif
+                                    </td>
+                                    <td>{{ $supplier->nama }}</td>
+                                    <td>{{ optional($supplier->user)->email ?? '-' }}</td>
+                                    <td>{{ $supplier->telepon }}</td>
+                                    <td>{{ $supplier->alamat }}</td>
+                                    <td>{{ $supplier->catatan }}</td>
+                                    <td class="action-cell">
+                                        <button type="button" class="btn-action btn-edit" title="Edit"
+                                            onclick='editSupplier({{ json_encode($supplier) }})'>
+                                            <i class="fas fa-edit"></i>
                                         </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="8" class="text-center">Belum ada data supplier.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </form>
+                                        <form method="POST" action="{{ route('supplier.destroy', $supplier->id) }}" style="display:inline;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn-action btn-delete" title="Hapus" onclick="return confirm('Yakin ingin menghapus supplier ini?')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="8">
+                                        <div class="empty-state">
+                                            <div class="empty-icon">
+                                                <i class="fas fa-truck"></i>
+                                            </div>
+                                            <h4 class="empty-text">Belum ada data supplier</h4>
+                                            <button class="btn btn-primary" onclick="showFormSupplier('add')">
+                                                <i class="fas fa-plus"></i> Tambah Supplier Pertama
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn btn-danger" onclick="confirmDeleteSelected()">
+                    <i class="fas fa-trash"></i> Hapus yang Dipilih
+                </button>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
     function showFormSupplier(mode) {
-        const form = document.getElementById('formSupplier');
-        const table = document.getElementById('tabelSupplier');
-        const title = document.getElementById('judulSupplier');
-        const btn = document.getElementById('btnAdd');
+        const form = document.getElementById('supplierForm');
+        const table = document.getElementById('tableSupplier');
+        const btn = document.getElementById('btnAddSupplier');
+        const cardTitle = document.querySelector('.card-title');
 
-        document.getElementById('supplierForm').reset();
+        form.reset();
         document.getElementById('supplierId').value = '';
-        document.getElementById('passwordInput').required = mode === 'add';
+
+        // Remove existing _method if any
+        const existingMethod = form.querySelector('input[name="_method"]');
+        if (existingMethod) existingMethod.remove();
 
         if (mode === 'add') {
-            document.getElementById('supplierForm').action = "{{ route('supplier.store') }}";
-            title.innerText = 'Tambah Supplier';
+            cardTitle.innerText = 'Tambah Supplier';
+            form.action = "{{ route('supplier.store') }}";
+            document.getElementById('passwordInputSupplier').required = true;
         } else {
-            document.getElementById('supplierForm').action = "{{ route('supplier.update', '') }}/" + mode;
-            title.innerText = 'Edit Supplier';
+            cardTitle.innerText = 'Edit Supplier';
+            form.action = "{{ url('supplier') }}/" + mode;
+
+            // Add PUT method
+            const methodInput = document.createElement('input');
+            methodInput.type = 'hidden';
+            methodInput.name = '_method';
+            methodInput.value = 'PUT';
+            form.appendChild(methodInput);
+
+            document.getElementById('passwordInputSupplier').required = false;
         }
 
         form.style.display = 'block';
         setTimeout(() => form.classList.add('show'), 10);
         table.style.display = 'none';
-        btn.innerText = 'Batal';
+        btn.innerHTML = '<i class="fas fa-times"></i> Batal';
         btn.setAttribute('onclick', 'hideFormSupplier()');
     }
 
     function hideFormSupplier() {
-        const form = document.getElementById('formSupplier');
-        const table = document.getElementById('tabelSupplier');
-        const title = document.getElementById('judulSupplier');
-        const btn = document.getElementById('btnAdd');
+        const form = document.getElementById('supplierForm');
+        const table = document.getElementById('tableSupplier');
+        const btn = document.getElementById('btnAddSupplier');
+        const cardTitle = document.querySelector('.card-title');
+
+        // Remove _method when going back to add
+        const existingMethod = form.querySelector('input[name="_method"]');
+        if (existingMethod) existingMethod.remove();
 
         form.classList.remove('show');
         setTimeout(() => form.style.display = 'none', 300);
         table.style.display = 'block';
-        title.innerText = 'Supplier';
-        btn.innerText = '+ Add';
+        cardTitle.innerText = 'Manajemen Supplier';
+        btn.innerHTML = '<i class="fas fa-plus"></i> Tambah Supplier';
         btn.setAttribute('onclick', 'showFormSupplier("add")');
     }
 
     function editSupplier(data) {
-        showFormSupplier('edit');
+        showFormSupplier(data.id);
         document.getElementById('supplierId').value = data.id;
-        document.getElementById('namaInput').value = data.nama;
-        document.getElementById('teleponInput').value = data.telepon;
-        document.getElementById('alamatInput').value = data.alamat;
-        document.getElementById('emailInput').value = data.user?.email || '';
-        document.getElementById('catatanInput').value = data.catatan;
+        document.getElementById('namaInputSupplier').value = data.nama;
+        document.getElementById('teleponInputSupplier').value = data.telepon || '';
+        document.getElementById('alamatInputSupplier').value = data.alamat || '';
+        document.getElementById('emailInputSupplier').value = data.user?.email || '';
+        document.getElementById('catatanInputSupplier').value = data.catatan || '';
+        document.getElementById('passwordInputSupplier').value = '';
     }
 
-    document.querySelector('.search-bar').addEventListener('keyup', function () {
-        const value = this.value.toLowerCase();
-        const rows = document.querySelectorAll('table tbody tr');
-
+    document.getElementById('searchInputSupplier').addEventListener('keyup', function() {
+        const searchValue = this.value.toLowerCase();
+        const rows = document.querySelectorAll('.supplier-table tbody tr');
+        
         rows.forEach(row => {
+            if (row.querySelector('.empty-state')) return;
+            
             const nama = row.cells[2].textContent.toLowerCase();
-            const telepon = row.cells[4].textContent.toLowerCase();
             const email = row.cells[3].textContent.toLowerCase();
-
-            if (nama.includes(value) || telepon.includes(value) || email.includes(value)) {
+            const telepon = row.cells[4].textContent.toLowerCase();
+            
+            if (nama.includes(searchValue) || email.includes(searchValue) || telepon.includes(searchValue)) {
                 row.style.display = '';
             } else {
                 row.style.display = 'none';
@@ -357,6 +537,18 @@
     function toggleAll(source) {
         const checkboxes = document.querySelectorAll('.row-checkbox');
         checkboxes.forEach(cb => cb.checked = source.checked);
+    }
+
+    function confirmDeleteSelected() {
+        const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
+        if (checkedBoxes.length === 0) {
+            alert('Pilih setidaknya satu supplier untuk dihapus');
+            return;
+        }
+
+        if (confirm(`Yakin ingin menghapus ${checkedBoxes.length} supplier yang dipilih?`)) {
+            document.getElementById('deleteSupplierForm').submit();
+        }
     }
 </script>
 

@@ -3,197 +3,327 @@
 
 @section('content')
 <style>
-    body {
-        font-family: 'Poppins', sans-serif;
-        background-color: #eef0ff;
-        padding: 30px 20px;
+    :root {
+        --primary-color: #5C48EE;
+        --primary-light: #eef0ff;
+        --secondary-color: #6c757d;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --warning-color: #ffc107;
+        --info-color: #17a2b8;
+        --light-color: #f8f9fa;
+        --dark-color: #343a40;
+        --border-radius: 8px;
+        --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        --transition: all 0.3s ease;
     }
 
-    .main-container {
+    .detail-container {
         max-width: 800px;
-        margin: 0 auto;
+        margin: 20px auto;
+        padding: 0 15px;
     }
 
     .card {
-        background-color: white;
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        margin-top: 40px;
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        transition: var(--transition);
+        overflow: hidden;
+        margin-bottom: 30px;
     }
 
-    h1 {
-        font-size: 20px;
-        font-weight: 700;
-        margin-bottom: 20px;
+    .card-header {
+        padding: 20px 25px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        background-color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--dark-color);
+        margin: 0;
+    }
+
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: capitalize;
+    }
+
+    .status-pending {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .status-approved {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .status-rejected {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .card-body {
+        padding: 25px;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .detail-section {
+        margin-bottom: 25px;
+    }
+
+    .detail-section-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--dark-color);
+        margin-bottom: 15px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #eee;
     }
 
     .detail-row {
         display: flex;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
     }
 
-    .label {
-        width: 180px;
-        font-weight: 600;
-        font-size: 13px;
-        color: #333;
+    .detail-label {
+        width: 150px;
+        font-weight: 500;
+        font-size: 0.875rem;
+        color: var(--secondary-color);
     }
 
-    .value {
-        font-size: 13px;
-        color: #444;
+    .detail-value {
+        font-size: 0.875rem;
+        color: var(--dark-color);
+        flex: 1;
     }
 
     .btn {
-        margin-top: 30px;
-        padding: 8px 14px;
-        font-size: 13px;
-        border-radius: 6px;
-        text-decoration: none;
-    }
-
-    .btn-back {
-        background-color: #5C48EE;
-        color: white;
+        padding: 10px 20px;
+        border-radius: var(--border-radius);
+        font-weight: 500;
+        font-size: 0.875rem;
         border: none;
-    }
-        .btn-approve {
-        background-color: #28a745;
-        color: white;
-        margin-right: 10px;
+        cursor: pointer;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
     }
 
-    .btn-reject {
-        background-color: #dc3545;
+    .btn-primary {
+        background-color: var(--primary-color);
         color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #4a3ac4;
+        transform: translateY(-2px);
+    }
+
+    .btn-success {
+        background-color: var(--success-color);
+        color: white;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+    }
+
+    .btn-danger {
+        background-color: var(--danger-color);
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background-color: #c82333;
     }
 
     .action-buttons {
-        margin-top: 30px;
         display: flex;
         gap: 10px;
+        margin-top: 25px;
     }
 
+    .currency {
+        font-family: monospace;
+    }
+
+    @media (max-width: 768px) {
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .detail-label {
+            width: 120px;
+        }
+    }
 </style>
 
-<div class="main-container">
+<div class="detail-container">
     <div class="card">
-        <h1>Detail Stok Masuk</h1>
-
-        <div class="detail-row">
-            <div class="label">No Transaksi:</div>
-            <div class="value">{{ $stokMasuk->no_transaksi }}</div>
+        <div class="card-header">
+            <h2 class="card-title">Detail Stok Masuk</h2>
+            <span class="status-badge status-{{ $stokMasuk->status }}">
+                {{ $stokMasuk->status }}
+            </span>
         </div>
-
-        <div class="detail-row">
-            <div class="label">Tanggal Masuk:</div>
-            <div class="value">{{ $stokMasuk->tanggal_masuk->format('d M Y') }}</div>
-        </div>
-
-        @if ($stokMasuk->tanggal_expired)
-        <div class="detail-row">
-            <div class="label">Tanggal Expired:</div>
-            <div class="value">{{ $stokMasuk->tanggal_expired->format('d M Y') }}</div>
-        </div>
-        @endif
-
-        <div class="detail-row">
-            <div class="label">Produk:</div>
-            <div class="value">{{ $stokMasuk->produk->nama_produk ?? '-' }} ({{ $stokMasuk->produk->sku ?? '-' }})</div>
-        </div>
-
-        <div class="detail-row">
-            <div class="label">Varian:</div>
-            <div class="value">{{ $stokMasuk->varian->varian ?? '-' }}</div>
-        </div>
-
-        <div class="detail-row">
-            <div class="label">Detail / Warna:</div>
-            <div class="value">{{ $stokMasuk->detail->detail ?? '-' }}</div>
-        </div>
-
-        <div class="detail-row">
-            <div class="label">Gudang:</div>
-            <div class="value">{{ $stokMasuk->gudang->nama ?? '-' }} ({{ $stokMasuk->gudang->kode ?? '-' }})</div>
-        </div>
-
-        <div class="detail-row">
-            <div class="label">Rak:</div>
-            <div class="value">{{ $stokMasuk->rak ?? '-' }}</div>
-        </div>
-
-        <div class="detail-row">
-            <div class="label">Supplier:</div>
-            <div class="value">{{ $stokMasuk->supplier->nama ?? '-' }}</div>
-        </div>
-
-        <div class="detail-row">
-            <div class="label">Kuantitas:</div>
-            <div class="value">{{ $stokMasuk->kuantitas }}</div>
-        </div>
-
-        <div class="detail-row">
-            <div class="label">Harga Satuan:</div>
-            <div class="value">Rp {{ number_format($stokMasuk->harga_satuan, 0, ',', '.') }}</div>
-        </div>
-
-        <div class="detail-row">
-            <div class="label">Total Harga:</div>
-            <div class="value">Rp {{ number_format($stokMasuk->total_harga, 0, ',', '.') }}</div>
-        </div>
-
-        <div class="detail-row">
-            <div class="label">No. Batch:</div>
-            <div class="value">{{ $stokMasuk->no_batch ?? '-' }}</div>
-        </div>
-
-        <div class="detail-row">
-            <div class="label">Catatan:</div>
-            <div class="value">{{ $stokMasuk->catatan ?? '-' }}</div>
-        </div>
-
-        <div class="detail-row">
-            <div class="label">Status:</div>
-            <div class="value">
-                <span style="color: {{ $stokMasuk->status === 'approved' ? 'green' : ($stokMasuk->status === 'pending' ? 'orange' : 'red') }}">
-                    {{ ucfirst($stokMasuk->status) }}
-                </span>
-            </div>
-        </div>
-
-        <div class="detail-row">
-            <div class="label">Dibuat Oleh:</div>
-            <div class="value">{{ $stokMasuk->user->name ?? '-' }}</div>
-        </div>
-
         
-        @if ($stokMasuk->status === 'pending')
+        <div class="card-body">
+            <div class="detail-section">
+                <h3 class="detail-section-title">Informasi Transaksi</h3>
+                <div class="detail-grid">
+                    <div class="detail-row">
+                        <div class="detail-label">No Transaksi</div>
+                        <div class="detail-value">{{ $stokMasuk->no_transaksi }}</div>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <div class="detail-label">Tanggal Masuk</div>
+                        <div class="detail-value">{{ $stokMasuk->tanggal_masuk->format('d M Y') }}</div>
+                    </div>
+                    
+                    @if ($stokMasuk->tanggal_expired)
+                    <div class="detail-row">
+                        <div class="detail-label">Tanggal Expired</div>
+                        <div class="detail-value">{{ $stokMasuk->tanggal_expired->format('d M Y') }}</div>
+                    </div>
+                    @endif
+                    
+                    <div class="detail-row">
+                        <div class="detail-label">No. Batch</div>
+                        <div class="detail-value">{{ $stokMasuk->no_batch ?? '-' }}</div>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <div class="detail-label">Dibuat Oleh</div>
+                        <div class="detail-value">{{ $stokMasuk->user->name ?? '-' }}</div>
+                    </div>
+                    
+                    @if ($stokMasuk->approved_by)
+                    <div class="detail-row">
+                        <div class="detail-label">Disetujui Oleh</div>
+                        <div class="detail-value">
+                            {{ $stokMasuk->approver->name ?? '-' }}<br>
+                            <small>{{ $stokMasuk->approved_at->format('d M Y H:i') }}</small>
+                        </div>
+                    </div>
+                    @endif
+                </div>
+            </div>
+            
+            <div class="detail-section">
+                <h3 class="detail-section-title">Informasi Produk</h3>
+                <div class="detail-grid">
+                    <div class="detail-row">
+                        <div class="detail-label">Produk</div>
+                        <div class="detail-value">
+                            {{ $stokMasuk->produk->nama_produk ?? '-' }}<br>
+                            <small>SKU: {{ $stokMasuk->produk->sku ?? '-' }}</small>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <div class="detail-label">Varian</div>
+                        <div class="detail-value">{{ $stokMasuk->varian->varian ?? '-' }}</div>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <div class="detail-label">Detail/Warna</div>
+                        <div class="detail-value">{{ $stokMasuk->detail->detail ?? '-' }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="detail-section">
+                <h3 class="detail-section-title">Informasi Penyimpanan</h3>
+                <div class="detail-grid">
+                    <div class="detail-row">
+                        <div class="detail-label">Gudang</div>
+                        <div class="detail-value">
+                            {{ $stokMasuk->gudang->nama ?? '-' }}<br>
+                            <small>Kode: {{ $stokMasuk->gudang->kode ?? '-' }}</small>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <div class="detail-label">Rak</div>
+                        <div class="detail-value">{{ $stokMasuk->rak ?? '-' }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="detail-section">
+                <h3 class="detail-section-title">Informasi Supplier & Harga</h3>
+                <div class="detail-grid">
+                    <div class="detail-row">
+                        <div class="detail-label">Supplier</div>
+                        <div class="detail-value">{{ $stokMasuk->supplier->nama ?? '-' }}</div>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <div class="detail-label">Kuantitas</div>
+                        <div class="detail-value">{{ $stokMasuk->kuantitas }}</div>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <div class="detail-label">Harga Satuan</div>
+                        <div class="detail-value" class="currency">Rp {{ number_format($stokMasuk->harga_satuan, 0, ',', '.') }}</div>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <div class="detail-label">Total Harga</div>
+                        <div class="detail-value" class="currency">Rp {{ number_format($stokMasuk->total_harga, 0, ',', '.') }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="detail-section">
+                <h3 class="detail-section-title">Catatan</h3>
+                <div class="detail-row">
+                    <div class="detail-value">{{ $stokMasuk->catatan ?? '-' }}</div>
+                </div>
+            </div>
+            
+            @if ($stokMasuk->status === 'pending')
             <div class="action-buttons">
                 <form action="{{ route('stok-masuk.approve', $stokMasuk->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menyetujui stok masuk ini?')">
                     @csrf
                     @method('PUT')
-                    <button type="submit" class="btn btn-approve">✓ Approve</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check"></i> Approve
+                    </button>
                 </form>
 
                 <form action="{{ route('stok-masuk.reject', $stokMasuk->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menolak stok masuk ini?')">
                     @csrf
                     @method('PUT')
-                    <button type="submit" class="btn btn-reject">✗ Reject</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-times"></i> Reject
+                    </button>
                 </form>
             </div>
-        @endif
-        @if ($stokMasuk->approved_by)
-                <div class="detail-row">
-                    <div class="label">Disetujui Oleh:</div>
-                    <div class="value">{{ $stokMasuk->approver->name ?? '-' }} pada {{ $stokMasuk->approved_at->format('d M Y H:i') }}</div>
-                </div>
-                @endif
+            @endif
+        </div>
     </div>
-
-      
-
-        <a href="{{ route('stok-masuk.index') }}" class="btn btn-back">← Kembali</a>
-    </div>
+    
+    <a href="{{ route('stok-masuk.index') }}" class="btn btn-primary">
+        <i class="fas fa-arrow-left"></i> Kembali ke Daftar
+    </a>
 </div>
 @endsection

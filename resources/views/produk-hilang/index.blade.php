@@ -3,195 +3,445 @@
 @section('content')
 
 <style>
-    body {
-        font-family: 'Poppins', sans-serif;
-        background-color: #eef0ff;
-        margin: 0;
-        padding: 30px 20px;
+    :root {
+        --primary-color: #5C48EE;
+        --primary-light: #eef0ff;
+        --secondary-color: #6c757d;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --warning-color: #ffc107;
+        --info-color: #17a2b8;
+        --light-color: #f8f9fa;
+        --dark-color: #343a40;
+        --border-radius: 8px;
+        --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        --transition: all 0.3s ease;
     }
 
     .main-container {
         max-width: 1200px;
-        margin: 0 auto;
-        width: 100%;
+        margin: 20px auto;
+        padding: 0 15px;
     }
 
     .card {
         background-color: white;
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        margin-top: 40px;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        padding: 30px;
+        margin-top: 20px;
     }
 
-    .header-row {
+    .card-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     }
 
-    .header-row h1 {
-        font-size: 20px;
-        font-weight: 700;
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--dark-color);
         margin: 0;
     }
 
+    .search-filter-container {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        gap: 15px;
+    }
+
+    .search-box {
+        flex: 1;
+        max-width: 400px;
+        position: relative;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 12px 15px 12px 40px;
+        border-radius: var(--border-radius);
+        border: 1px solid #e0e0e0;
+        font-size: 0.875rem;
+        transition: var(--transition);
+        background-color: #f8f9fa;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        background-color: white;
+        box-shadow: 0 0 0 3px rgba(92, 72, 238, 0.1);
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--secondary-color);
+    }
+
+    .filter-group {
+        display: flex;
+        gap: 10px;
+    }
+
+    .filter-select {
+        padding: 10px 15px;
+        border-radius: var(--border-radius);
+        border: 1px solid #e0e0e0;
+        font-size: 0.875rem;
+        background-color: #f8f9fa;
+    }
+
     .btn {
-        font-size: 10px;
-        padding: 10px 16px;
-        border-radius: 8px;
-        font-weight: 600;
+        padding: 10px 20px;
+        border-radius: var(--border-radius);
+        font-weight: 500;
+        font-size: 0.875rem;
         border: none;
         cursor: pointer;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
     }
 
     .btn-primary {
-        background-color: #5C48EE;
+        background-color: var(--primary-color);
         color: white;
-        text-decoration: none;
+    }
+
+    .btn-primary:hover {
+        background-color: #4a3ac4;
+        transform: translateY(-2px);
     }
 
     .btn-outline {
-        border: 1px solid #5C48EE;
+        border: 1px solid var(--primary-color);
         background-color: white;
-        color: #5C48EE;
-        text-decoration: none;
+        color: var(--primary-color);
     }
 
-    .search-bar {
-        width: 100%;
-        padding: 10px;
-        margin-bottom: 20px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-        font-size: 10px;
+    .btn-outline:hover {
+        background-color: var(--primary-light);
     }
 
-    table {
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .report-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 10px;
-        background-color: white;
+        font-size: 0.875rem;
     }
 
-    table thead {
-        background-color: #f9f9f9;
+    .report-table thead {
+        background-color: #f8f9fa;
     }
 
-    th, td {
-        padding: 12px;
-        border-bottom: 1px solid #eee;
+    .report-table th {
+        padding: 15px;
         text-align: left;
+        font-weight: 600;
+        color: var(--dark-color);
+        border-bottom: 2px solid #e9ecef;
     }
 
-    th {
+    .report-table td {
+        padding: 15px;
+        border-bottom: 1px solid #e9ecef;
+        vertical-align: middle;
+    }
+
+    .report-table tr:hover {
+        background-color: rgba(92, 72, 238, 0.03);
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
         font-weight: 600;
-        color: #333;
+    }
+
+    .badge-reported {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .badge-verified {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .badge-rejected {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .action-cell {
+        display: flex;
+        gap: 10px;
     }
 
     .btn-action {
-        font-size: 12px;
-        margin-right: 8px;
-        text-decoration: none;
+        padding: 8px 12px;
+        border-radius: var(--border-radius);
+        font-size: 0.75rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+        border: none;
     }
 
     .btn-verify {
-        color: green;
+        background-color: rgba(40, 167, 69, 0.1);
+        color: var(--success-color);
+    }
+
+    .btn-verify:hover {
+        background-color: rgba(40, 167, 69, 0.2);
     }
 
     .btn-reject {
-        color: red;
+        background-color: rgba(220, 53, 69, 0.1);
+        color: var(--danger-color);
+    }
+
+    .btn-reject:hover {
+        background-color: rgba(220, 53, 69, 0.2);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+    }
+
+    .empty-icon {
+        font-size: 3rem;
+        color: #adb5bd;
+        margin-bottom: 15px;
+    }
+
+    .empty-text {
+        color: #6c757d;
+        margin-bottom: 20px;
+    }
+
+    .pagination-container {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 20px;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        padding: 15px;
+        border-radius: var(--border-radius);
+        margin-bottom: 20px;
+    }
+
+    @media (max-width: 768px) {
+        .search-filter-container {
+            flex-direction: column;
+        }
+        
+        .search-box {
+            max-width: 100%;
+        }
+        
+        .filter-group {
+            justify-content: flex-end;
+        }
+        
+        .card-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+        
+        .action-buttons {
+            width: 100%;
+            justify-content: flex-end;
+        }
     }
 </style>
 
 <div class="main-container">
     <div class="card">
-        <div class="header-row">
-            <h1>Laporan Produk Hilang</h1>
-            <div>
-                <a href="{{ route('produk-hilang.create') }}" class="btn btn-primary">+ Tambah Laporan</a>
+        <div class="card-header">
+            <h1 class="card-title">Laporan Produk Hilang</h1>
+            <div class="action-buttons">
+                <a href="{{ route('produk-hilang.create') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Tambah Laporan
+                </a>
             </div>
         </div>
 
         @if (session('success'))
-            <div style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin-bottom: 20px;">
+            <div class="alert-success">
                 {{ session('success') }}
             </div>
         @endif
 
-        <input type="search" class="search-bar" placeholder="Cari produk, status, atau keterangan...">
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Produk</th>
-                    <th>Jumlah</th>
-                    <th>Keterangan</th>
-                    <th>Status</th>
-                    <th>Tanggal Kejadian</th>
-                    <th>Dilaporkan Oleh</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse ($reports as $report)
-                    <tr>
-                        <td>{{ $report->produk->nama_produk ?? '-' }}</td>
-                        <td>{{ $report->jumlah_hilang }}</td>
-                        <td>{{ $report->keterangan->nama }}</td>
-                        <td>{{ $report->status }}</td>
-                        <td>{{ $report->tanggal_kejadian->format('d M Y') }}</td>
-                        <td>{{ $report->user->name ?? '-' }}</td>
-                        <td>
-                            @if ($report->status === 'REPORTED')
-                                <form action="{{ route('produk-hilang.verify', $report->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    @method('PUT')
-                                    <button type="submit" class="btn-action btn-verify" onclick="return confirm('Verifikasi laporan ini?')">
-                                        ✔ Verifikasi
-                                    </button>
-                                </form>
-
-                                <form action="{{ route('produk-hilang.reject', $report->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    @method('PUT')
-                                    <button type="submit" class="btn-action btn-reject" onclick="return confirm('Tolak laporan ini?')">
-                                        ✖ Tolak
-                                    </button>
-                                </form>
-                            @else
-                                <span style="color: #999;">-</span>
-                            @endif
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="7" class="text-center">Belum ada laporan produk hilang.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-
-        <div style="margin-top: 20px;">
-            {{ $reports->links() }}
+        <div class="search-filter-container">
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="search" class="search-input" placeholder="Cari produk, status, atau keterangan..." 
+                       id="searchInput" value="{{ request('search') }}">
+            </div>
+            <div class="filter-group">
+                <select class="filter-select" id="statusFilter">
+                    <option value="">Semua Status</option>
+                    <option value="REPORTED" {{ request('status') == 'REPORTED' ? 'selected' : '' }}>Dilaporkan</option>
+                    <option value="VERIFIED" {{ request('status') == 'VERIFIED' ? 'selected' : '' }}>Terverifikasi</option>
+                    <option value="REJECTED" {{ request('status') == 'REJECTED' ? 'selected' : '' }}>Ditolak</option>
+                </select>
+                <button class="btn btn-primary" id="filterButton">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+                @if(request()->has('search') || request()->has('status'))
+                    <a href="{{ route('produk-hilang.index') }}" class="btn btn-outline">
+                        <i class="fas fa-times"></i> Reset
+                    </a>
+                @endif
+            </div>
         </div>
+        
+        <div class="table-responsive">
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Produk</th>
+                        <th>Jumlah</th>
+                        <th>Keterangan</th>
+                        <th>Status</th>
+                        <th>Tanggal Kejadian</th>
+                        <th>Dilaporkan Oleh</th>
+                        <th width="15%">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($reports as $report)
+                        <tr>
+                            <td>
+                                <div>{{ $report->produk->nama_produk ?? '-' }}</div>
+                                @if($report->produk)
+                                    <small class="text-muted">SKU: {{ $report->produk->sku }}</small>
+                                @endif
+                            </td>
+                            <td>{{ $report->jumlah_hilang }}</td>
+                            <td>{{ $report->keterangan->nama ?? '-' }}</td>
+                            <td>
+                                @if($report->status == 'REPORTED')
+                                    <span class="badge badge-reported">{{ $report->status }}</span>
+                                @elseif($report->status == 'VERIFIED')
+                                    <span class="badge badge-verified">{{ $report->status }}</span>
+                                @else
+                                    <span class="badge badge-rejected">{{ $report->status }}</span>
+                                @endif
+                            </td>
+                            <td>{{ $report->tanggal_kejadian->format('d M Y') }}</td>
+                            <td>{{ $report->user->name ?? '-' }}</td>
+                            <td class="action-cell">
+                                @if ($report->status === 'REPORTED')
+                                    <form action="{{ route('produk-hilang.verify', $report->id) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        @method('PUT')
+                                        <button type="submit" class="btn-action btn-verify" onclick="return confirm('Verifikasi laporan ini?')">
+                                            <i class="fas fa-check"></i> Verifikasi
+                                        </button>
+                                    </form>
+
+                                    <form action="{{ route('produk-hilang.reject', $report->id) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        @method('PUT')
+                                        <button type="submit" class="btn-action btn-reject" onclick="return confirm('Tolak laporan ini?')">
+                                            <i class="fas fa-times"></i> Tolak
+                                        </button>
+                                    </form>
+                                @else
+                                    <span style="color: #999;">-</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7">
+                                <div class="empty-state">
+                                    <div class="empty-icon">
+                                        <i class="fas fa-box-open"></i>
+                                    </div>
+                                    <h4 class="empty-text">Belum ada laporan produk hilang</h4>
+                                    <a href="{{ route('produk-hilang.create') }}" class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Tambah Laporan
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        @if($reports->hasPages())
+            <div class="pagination-container">
+                {{ $reports->appends([
+                    'search' => request('search'),
+                    'status' => request('status')
+                ])->links() }}
+            </div>
+        @endif
     </div>
 </div>
 
 <script>
-    document.querySelector('.search-bar').addEventListener('keyup', function () {
-        const value = this.value.toLowerCase();
-        const rows = document.querySelectorAll('table tbody tr');
+    // Filter functionality
+    document.getElementById('filterButton').addEventListener('click', function() {
+        const searchValue = document.getElementById('searchInput').value;
+        const statusValue = document.getElementById('statusFilter').value;
+        
+        let url = new URL(window.location.href);
+        let params = new URLSearchParams(url.search);
+        
+        if(searchValue) params.set('search', searchValue);
+        else params.delete('search');
+        
+        if(statusValue) params.set('status', statusValue);
+        else params.delete('status');
+        
+        window.location.href = url.pathname + '?' + params.toString();
+    });
 
-        rows.forEach(row => {
-            const cells = Array.from(row.cells).map(cell => cell.textContent.toLowerCase());
-            if (cells.some(text => text.includes(value))) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
-        });
+    // Initialize filter values from URL
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchParam = urlParams.get('search');
+        const statusParam = urlParams.get('status');
+        
+        if(searchParam) {
+            document.getElementById('searchInput').value = searchParam;
+        }
+        
+        if(statusParam) {
+            document.getElementById('statusFilter').value = statusParam;
+        }
+    });
+
+    // Enter key in search input triggers filter
+    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+        if(e.key === 'Enter') {
+            document.getElementById('filterButton').click();
+        }
     });
 </script>
 

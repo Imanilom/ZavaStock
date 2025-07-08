@@ -1,178 +1,248 @@
 @extends('layouts.app')
 @section('title', 'Detail Stok Opname')
-
 @section('content')
+
 <style>
-    body {
-        font-family: 'Poppins', sans-serif;
-        background-color: #eef0ff;
-        margin: 0;
-        padding: 30px 20px;
+    :root {
+        --primary-color: #5C48EE;
+        --primary-light: #eef0ff;
+        --secondary-color: #6c757d;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --warning-color: #ffc107;
+        --info-color: #17a2b8;
+        --light-color: #f8f9fa;
+        --dark-color: #343a40;
+        --border-radius: 8px;
+        --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        --transition: all 0.3s ease;
     }
-
-    .main-container {
-        max-width: 900px;
-        margin: 0 auto;
-        width: 100%;
+    
+    .stok-container {
+        max-width: 800px;
+        margin: 30px auto;
+        padding: 0 15px;
     }
-
+    
     .card {
-        background-color: white;
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        margin-top: 40px;
-        margin-bottom: 20px;
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        transition: var(--transition);
+        overflow: hidden;
+        margin-bottom: 30px;
     }
-
-    .card h2 {
-        font-size: 20px;
-        font-weight: 700;
-        margin-bottom: 20px;
-    }
-
-    .row {
+    
+    .card-header {
+        padding: 20px 25px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         display: flex;
-        flex-wrap: wrap;
-        gap: 10px 30px;
+        justify-content: space-between;
+        align-items: center;
+        background-color: white;
     }
-
-    .col-label {
-        width: 150px;
+    
+    .card-title {
+        font-size: 1.5rem;
         font-weight: 600;
-        color: #555;
+        color: var(--dark-color);
+        margin: 0;
     }
-
-    .col-value {
+    
+    .card-body {
+        padding: 25px;
+    }
+    
+    .detail-row {
+        display: flex;
+        margin-bottom: 15px;
+        padding: 10px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .detail-label {
+        width: 180px;
+        font-weight: 600;
+        color: var(--secondary-color);
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .detail-value {
+        font-size: 0.875rem;
+        color: var(--dark-color);
+        display: flex;
+        align-items: center;
         flex: 1;
     }
-
-    .btn {
-        padding: 8px 16px;
-        border-radius: 6px;
-        font-size: 12px;
-        font-weight: 600;
-        cursor: pointer;
-        border: none;
-        text-decoration: none;
-        display: inline-block;
-        margin-right: 8px;
-    }
-
-    .btn-primary {
-        background-color: #5C48EE;
-        color: white;
-    }
-
-    .btn-outline {
-        background-color: white;
-        color: #5C48EE;
-        border: 1px solid #5C48EE;
-    }
-
+    
     .badge {
         display: inline-block;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 12px;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
         font-weight: 600;
     }
-
+    
     .badge-pending {
         background-color: #fff3cd;
         color: #856404;
     }
-
+    
     .badge-approved {
         background-color: #d4edda;
         color: #155724;
     }
-
+    
+    .btn {
+        padding: 10px 20px;
+        border-radius: var(--border-radius);
+        font-weight: 500;
+        font-size: 0.875rem;
+        border: none;
+        cursor: pointer;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background-color: #4a3ac4;
+        transform: translateY(-2px);
+    }
+    
+    .btn-outline {
+        border: 1px solid var(--primary-color);
+        background-color: white;
+        color: var(--primary-color);
+    }
+    
+    .btn-outline:hover {
+        background-color: var(--primary-light);
+    }
+    
     .actions {
         margin-top: 20px;
+        display: flex;
+        gap: 10px;
+    }
+    
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+        margin-bottom: 20px;
+    }
+    
+    .back-link:hover {
+        text-decoration: underline;
     }
 </style>
 
-<div class="main-container">
+<div class="stok-container">
+    <a href="{{ route('stok-opname.index') }}" class="back-link">
+        <i class="fas fa-arrow-left"></i> Kembali ke Daftar Stok Opname
+    </a>
+    
     <div class="card">
-        <h2>Detail Stok Opname</h2>
-
-        <div class="row">
-            <div class="col-label">Tanggal</div>
-            <div class="col-value">{{ $opname->created_at->format('d/m/Y H:i') }}</div>
+        <div class="card-header">
+            <h2 class="card-title">Detail Stok Opname</h2>
         </div>
-
-        <div class="row">
-            <div class="col-label">Produk</div>
-            <div class="col-value">{{ $opname->produk->nama_produk ?? '-' }}</div>
-        </div>
-
-        <div class="row">
-            <div class="col-label">Varian</div>
-            <div class="col-value">{{ $opname->varian->varian ?? '-' }}</div>
-        </div>
-
-        <div class="row">
-            <div class="col-label">Detail</div>
-            <div class="col-value">{{ $opname->detail->detail ?? '-' }}</div>
-        </div>
-
-        <div class="row">
-            <div class="col-label">Gudang</div>
-            <div class="col-value">{{ $opname->gudang->nama ?? '-' }}</div>
-        </div>
-
-        <div class="row">
-            <div class="col-label">Rak</div>
-            <div class="col-value">{{ $opname->rak ?? '-' }}</div>
-        </div>
-
-        <div class="row">
-            <div class="col-label">Stok Sistem</div>
-            <div class="col-value">{{ $opname->stok_sistem }}</div>
-        </div>
-
-        <div class="row">
-            <div class="col-label">Stok Fisik</div>
-            <div class="col-value">{{ $opname->stok_fisik }}</div>
-        </div>
-
-        <div class="row">
-            <div class="col-label">Selisih</div>
-            <div class="col-value">{{ $opname->selisih }}</div>
-        </div>
-
-        <div class="row">
-            <div class="col-label">Status</div>
-            <div class="col-value">
-                @if($opname->status === 'approved')
-                    <span class="badge badge-approved">Approved</span>
-                @else
-                    <span class="badge badge-pending">Pending</span>
-                @endif
+        
+        <div class="card-body">
+            <div class="detail-row">
+                <div class="detail-label">Tanggal</div>
+                <div class="detail-value">{{ $opname->created_at->format('d/m/Y H:i') }}</div>
             </div>
-        </div>
-
-        <div class="row">
-            <div class="col-label">Pencatat</div>
-            <div class="col-value">{{ $opname->user->name ?? '-' }}</div>
-        </div>
-
-        <div class="row">
-            <div class="col-label">Catatan</div>
-            <div class="col-value">{{ $opname->catatan ?? '-' }}</div>
-        </div>
-
-        <div class="actions">
-            @if($opname->status == 'pending' && auth()->user()->role === 'admin')
-                <form action="{{ route('stok-opname.approve', $opname->id) }}" method="POST" style="display:inline-block;">
-                    @csrf
-                    <button type="submit" class="btn btn-primary btn-sm">Approve</button>
-                </form>
-            @endif
-
-            <a href="{{ route('stok-opname.export', $opname->id) }}" class="btn btn-outline btn-sm">Download PDF</a>
+            
+            <div class="detail-row">
+                <div class="detail-label">Produk</div>
+                <div class="detail-value">{{ $opname->produk->nama_produk ?? '-' }}</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Varian</div>
+                <div class="detail-value">{{ optional($opname->varian)->varian ?? '-' }}</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Detail</div>
+                <div class="detail-value">{{ optional($opname->detail)->detail ?? '-' }}</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Gudang</div>
+                <div class="detail-value">{{ optional($opname->gudang)->nama ?? '-' }}</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Rak</div>
+                <div class="detail-value">{{ $opname->rak ?? '-' }}</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Stok Sistem</div>
+                <div class="detail-value">{{ number_format($opname->stok_sistem) }}</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Stok Fisik</div>
+                <div class="detail-value">{{ number_format($opname->stok_fisik) }}</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Selisih</div>
+                <div class="detail-value">{{ number_format($opname->selisih) }}</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Status</div>
+                <div class="detail-value">
+                    @if($opname->status === 'approved')
+                        <span class="badge badge-approved">Approved</span>
+                    @else
+                        <span class="badge badge-pending">Pending</span>
+                    @endif
+                </div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Pencatat</div>
+                <div class="detail-value">{{ $opname->user->name ?? '-' }}</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Catatan</div>
+                <div class="detail-value">{{ $opname->catatan ?? '-' }}</div>
+            </div>
+            
+            <div class="actions">
+                @if($opname->status == 'pending' && auth()->user()->can('approve-stok-opname'))
+                    <form action="{{ route('stok-opname.approve', $opname->id) }}" method="POST" style="display:inline-block;">
+                        @csrf
+                        @method('PUT')
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-check"></i> Approve
+                        </button>
+                    </form>
+                @endif
+                
+                <a href="{{ route('stok-opname.export', $opname->id) }}" class="btn btn-outline">
+                    <i class="fas fa-file-pdf"></i> Download PDF
+                </a>
+            </div>
         </div>
     </div>
 </div>
+
 @endsection
