@@ -76,12 +76,26 @@
         }
 
         /* Navbar */
+        .topbar {
+            background: white !important;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+        }
+
         .navbar {
-            background: white;
+            background: white !important;
             box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
             position: sticky;
             top: 0;
             z-index: 800;
+            height: 4.375rem;
+        }
+
+        .navbar .navbar-nav .nav-item .nav-link {
+            color: var(--dark-color);
+        }
+
+        .navbar .navbar-nav .nav-item .nav-link:hover {
+            color: var(--primary-color);
         }
 
         /* Sidebar Content */
@@ -104,7 +118,7 @@
         }
 
         .sidebar-divider {
-            border-top: 1px solid rgb(255, 255, 255);
+            border-top: 1px solid rgba(255, 255, 255, 0.5);
             margin: 0 1rem;
         }
 
@@ -113,11 +127,12 @@
             font-size: 0.75rem;
             font-weight: 600;
             text-transform: uppercase;
-            color: rgb(255, 255, 255);
+            color: white !important;
         }
 
         .sidebar .nav {
             padding: 0 1rem;
+             color: white !important;
         }
 
         .sidebar .nav-item {
@@ -128,19 +143,39 @@
             display: flex;
             align-items: center;
             padding: 0.75rem 1rem;
-            color: rgb(255, 255, 255);
+            color: white !important;
             transition: all 0.3s;
             border-radius: 0.35rem;
         }
 
+        /* Paksa semua teks sidebar agar putih */
+        #sidebar,
+        #sidebar .nav-link,
+        #sidebar .nav-link span,
+        #sidebar .nav-link i,
+        #sidebar .sidebar-heading,
+        #sidebar .collapse .nav-link,
+        #sidebar .nav-item,
+        .sidebar-footer {
+            color: white !important;
+        }
+
+        #sidebar .nav-link.active,
+        #sidebar .nav-link:hover,
+        #sidebar .collapse .nav-link:hover,
+        #sidebar .collapse .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white !important;
+        }
+
         .sidebar .nav-link:hover {
-            color: #fff;
-            background: rgb(255, 255, 255);
+            color: var(--primary-color) !important;
+            background: rgba(255, 255, 255, 0.9);
         }
 
         .sidebar .nav-link.active {
-            color: #fff;
-            background: rgb(255, 255, 255);
+            color: var(--primary-color) !important;
+            background: rgba(255, 255, 255, 0.9);
         }
 
         .sidebar .nav-link i {
@@ -148,6 +183,7 @@
             font-size: 0.85rem;
             width: 20px;
             text-align: center;
+           color: white !important;
         }
 
         .sidebar .nav-link .fa-caret-down {
@@ -167,6 +203,13 @@
         .sidebar .collapse .nav-link {
             padding: 0.5rem 1rem;
             font-size: 0.85rem;
+            color: white !important;
+        }
+
+        .sidebar .collapse .nav-link:hover,
+        .sidebar .collapse .nav-link.active {
+            color: var(--primary-color) !important;
+            background: rgba(255, 255, 255, 0.9);
         }
 
         /* Breadcrumbs */
@@ -232,7 +275,7 @@
         /* Responsive adjustments */
         @media (max-width: 768px) {
             #sidebar {
-                margin-left: -250px;
+                margin-left: -200px;
             }
             #sidebar.active {
                 margin-left: 0;
@@ -276,16 +319,16 @@
         
         <div class="sidebar-heading py-3">
             @auth
-                {{ auth()->user()->admin() ? 'Admin Panel' : 'Customer Panel' }}
+                {{ auth()->user()->role === 'admin' ? 'Admin Panel' : 'User Panel' }}
             @endauth
         </div>
         
         <div class="nav flex-column">
             <!-- Dashboard/Beranda -->
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ auth()->user()->admin() ? route('dashboard') : route('produk.index') }}">
+                <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ auth()->user()->role === 'admin' ? route('dashboard') : route('produk.index') }}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>{{ auth()->user()->admin() ? 'Dashboard' : 'Beranda' }}</span>
+                    <span>{{ auth()->user()->role === 'admin' ? 'Dashboard' : 'Beranda' }}</span>
                 </a>
             </li>
 
@@ -306,7 +349,7 @@
             </li>
 
             <!-- Menu khusus Admin -->
-            @if(auth()->check() && auth()->user()->admin())
+            @if(auth()->check() && auth()->user()->role === 'admin')
                 <!-- Manajemen Pengguna -->
                 <li class="nav-item">
                     <a class="nav-link {{ (request()->routeIs('admin.*') || request()->routeIs('customer.*') || request()->routeIs('supplier.*')) ? 'active' : '' }}" 
@@ -381,28 +424,36 @@
                     </div>
                 </li>
 
-                <!-- Approvals -->
+                <!-- Approvals - Only visible to admin -->
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="collapse" href="#approvalsCollapse" aria-expanded="false" aria-controls="approvalsCollapse">
+                    <a class="nav-link {{ (request()->get('status') == 'pending') ? 'active' : '' }}" 
+                       data-bs-toggle="collapse" 
+                       href="#approvalsCollapse" 
+                       aria-expanded="{{ (request()->get('status') == 'pending') ? 'true' : 'false' }}" 
+                       aria-controls="approvalsCollapse">
                         <i class="fas fa-fw fa-check-circle"></i>
                         <span>Persetujuan</span>
                         <i class="fas fa-fw fa-caret-down"></i>
                     </a>
-                    <div id="approvalsCollapse" class="collapse">
+                    <div id="approvalsCollapse" class="collapse {{ (request()->get('status') == 'pending') ? 'show' : '' }}">
                         <div class="nav flex-column">
-                            <a class="nav-link" href="{{ route('produk-hilang.index') }}?status=pending">
+                            <a class="nav-link {{ (request()->routeIs('produk-hilang.*') && request()->get('status') == 'pending') ? 'active' : '' }}" 
+                               href="{{ route('produk-hilang.index') }}?status=pending">
                                 <i class="fas fa-fw fa-exclamation-triangle"></i>
                                 <span>Produk Hilang</span>
                             </a>
-                            <a class="nav-link" href="{{ route('stok-masuk.index') }}?status=pending">
+                            <a class="nav-link {{ (request()->routeIs('stok-masuk.*') && request()->get('status') == 'pending') ? 'active' : '' }}" 
+                               href="{{ route('stok-masuk.index') }}?status=pending">
                                 <i class="fas fa-fw fa-arrow-down"></i>
                                 <span>Stok Masuk</span>
                             </a>
-                            <a class="nav-link" href="{{ route('stok-keluar.index') }}?status=pending">
+                            <a class="nav-link {{ (request()->routeIs('stok-keluar.*') && request()->get('status') == 'pending') ? 'active' : '' }}" 
+                               href="{{ route('stok-keluar.index') }}?status=pending">
                                 <i class="fas fa-fw fa-arrow-up"></i>
                                 <span>Stok Keluar</span>
                             </a>
-                            <a class="nav-link" href="{{ route('stok-opname.index') }}?status=pending">
+                            <a class="nav-link {{ (request()->routeIs('stok-opname.*') && request()->get('status') == 'pending') ? 'active' : '' }}" 
+                               href="{{ route('stok-opname.index') }}?status=pending">
                                 <i class="fas fa-fw fa-clipboard-check"></i>
                                 <span>Stok Opname</span>
                             </a>
@@ -438,11 +489,11 @@
                     <!-- Dropdown - User Information -->
                     <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                         aria-labelledby="userDropdown">
-                        <a class="dropdown-item" href="#">
+                        <a class="dropdown-item" href="{{ route('profile') }}">
                             <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                             Profile
                         </a>
-                        <a class="dropdown-item" href="#">
+                        <a class="dropdown-item" href="{{ route('settings') }}">
                             <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
                             Settings
                         </a>
