@@ -9,6 +9,15 @@ class Supplier extends Model
 {
     use HasFactory;
     protected $table = 'suppliers';
+    protected $fillable = [
+        'user_id',
+        'nama',
+        'telepon',
+        'alamat',
+        'email',
+        'catatan',
+        'foto',
+    ];
     protected $guarded = [];
 
     public function user()

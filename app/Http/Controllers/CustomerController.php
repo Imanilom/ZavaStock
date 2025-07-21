@@ -4,14 +4,31 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\User;
+use App\Models\AktivitasRiwayat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class CustomerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $customers = Customer::with('user')->get();
+        $query = Customer::with('user');
+
+        // Add search functionality
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nama', 'like', '%'.$search.'%')
+                  ->orWhere('telepon', 'like', '%'.$search.'%')
+                  ->orWhere('email', 'like', '%'.$search.'%')
+                  ->orWhereHas('user', function($q) use ($search) {
+                      $q->where('email', 'like', '%'.$search.'%');
+                  });
+            });
+        }
+
+        $customers = $query->orderBy('nama')->paginate(10);
         return view('customer.index', compact('customers'));
     }
 
@@ -23,7 +40,7 @@ class CustomerController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:100',
+            'nama' => 'required|string|max:100',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
             'telepon' => 'nullable|string|max:20',
@@ -31,23 +48,42 @@ class CustomerController extends Controller
             'catatan' => 'nullable|string',
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => 'user',
-        ]);
+        DB::transaction(function () use ($request) {
+            $user = User::create([
+                'name' => $request->nama,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'role' => 'user',
+            ]);
 
-        Customer::create([
-            'user_id' => $user->id,
-            'nama' => $request->name,
-            'telepon' => $request->telepon,
-            'email' => $request->email,
-            'alamat' => $request->alamat,
-            'catatan' => $request->catatan,
-        ]);
+            $customer = Customer::create([
+                'user_id' => $user->id,
+                'nama' => $request->nama,
+                'telepon' => $request->telepon,
+                'email' => $request->email,
+                'alamat' => $request->alamat,
+                'catatan' => $request->catatan,
+            ]);
+
+            // Record activity
+            AktivitasRiwayat::create([
+                'user_id' => auth()->id(),
+                'tipe_aktivitas' => 'create',
+                'subjek_tipe' => 'customer',
+                'subjek_id' => $customer->id,
+                'deskripsi' => 'Menambahkan customer baru: ' . $customer->nama,
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ]);
+        });
 
         return redirect()->route('customer.index')->with('success', 'Customer berhasil ditambahkan.');
+    }
+
+    public function show($id)
+    {
+        $customer = Customer::with(['user', 'aktivitas'])->findOrFail($id);
+        return view('customer.show', compact('customer'));
     }
 
     public function edit($id)
@@ -61,23 +97,40 @@ class CustomerController extends Controller
         $customer = Customer::with('user')->findOrFail($id);
 
         $request->validate([
-            'name' => 'required|string|max:100',
+            'nama' => 'required|string|max:100',
             'telepon' => 'nullable|string|max:20',
             'alamat' => 'nullable|string',
             'catatan' => 'nullable|string',
         ]);
 
-        $customer->update([
-            'nama' => $request->name,
-            'telepon' => $request->telepon,
-            'alamat' => $request->alamat,
-            'catatan' => $request->catatan,
-        ]);
+        DB::transaction(function () use ($request, $customer) {
+            $oldData = $customer->toArray();
+            
+            $customer->update([
+                'nama' => $request->nama,
+                'telepon' => $request->telepon,
+                'email' => $request->email,
+                'alamat' => $request->alamat,
+                'catatan' => $request->catatan,
+            ]);
 
-        if ($customer->user) {
-            $customer->user->name = $request->name;
-            $customer->user->save();
-        }
+            if ($customer->user) {
+                $customer->user->name = $request->nama;
+                $customer->user->email = $request->email;
+                $customer->user->save();
+            }
+
+            // Record activity
+            AktivitasRiwayat::create([
+                'user_id' => auth()->id(),
+                'tipe_aktivitas' => 'update',
+                'subjek_tipe' => 'customer',
+                'subjek_id' => $customer->id,
+                'deskripsi' => 'Memperbarui data customer: ' . $customer->nama,
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ]);
+        });
 
         return redirect()->route('customer.index')->with('success', 'Customer berhasil diperbarui.');
     }
@@ -86,11 +139,24 @@ class CustomerController extends Controller
     {
         $customer = Customer::with('user')->findOrFail($id);
 
-        if ($customer->user) {
-            $customer->user->delete();
-        } else {
+        DB::transaction(function () use ($customer) {
+            // Record activity before deletion
+            AktivitasRiwayat::create([
+                'user_id' => auth()->id(),
+                'tipe_aktivitas' => 'delete',
+                'subjek_tipe' => 'customer',
+                'subjek_id' => $customer->id,
+                'deskripsi' => 'Menghapus customer: ' . $customer->nama,
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ]);
+
+            if ($customer->user) {
+                $customer->user->delete();
+            }
+            
             $customer->delete();
-        }
+        });
 
         return redirect()->route('customer.index')->with('success', 'Customer berhasil dihapus.');
     }
@@ -100,15 +166,28 @@ class CustomerController extends Controller
         $ids = $request->input('ids');
 
         if (!empty($ids)) {
-            $customers = Customer::with('user')->whereIn('id', $ids)->get();
+            DB::transaction(function () use ($ids) {
+                $customers = Customer::with('user')->whereIn('id', $ids)->get();
 
-            foreach ($customers as $customer) {
-                if ($customer->user) {
-                    $customer->user->delete();
-                } else {
+                foreach ($customers as $customer) {
+                    // Record activity for each deletion
+                    AktivitasRiwayat::create([
+                        'user_id' => auth()->id(),
+                        'tipe_aktivitas' => 'delete',
+                        'subjek_tipe' => 'customer',
+                        'subjek_id' => $customer->id,
+                        'deskripsi' => 'Menghapus customer (multiple): ' . $customer->nama,
+                        'ip_address' => request()->ip(),
+                        'user_agent' => request()->userAgent(),
+                    ]);
+
+                    if ($customer->user) {
+                        $customer->user->delete();
+                    }
+                    
                     $customer->delete();
                 }
-            }
+            });
 
             return redirect()->route('customer.index')->with('success', 'Beberapa customer berhasil dihapus.');
         }

@@ -209,9 +209,9 @@
                 <div class="detail-label">Status</div>
                 <div class="detail-value">
                     @if($opname->status === 'approved')
-                        <span class="badge badge-approved">Approved</span>
+                        <span class="badge badge-approved">Disetujui</span>
                     @else
-                        <span class="badge badge-pending">Pending</span>
+                        <span class="badge badge-pending">Menunggu Persetujuan</span>
                     @endif
                 </div>
             </div>
@@ -232,7 +232,7 @@
                         @csrf
                         @method('PUT')
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-check"></i> Approve
+                            <i class="fas fa-check"></i> Setuju
                         </button>
                     </form>
                 @endif

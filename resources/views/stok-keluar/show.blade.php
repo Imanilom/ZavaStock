@@ -216,9 +216,9 @@
                     @if($stokKeluar->status == 'pending')
                         <span class="badge badge-pending">Pending</span>
                     @elseif($stokKeluar->status == 'approved')
-                        <span class="badge badge-approved">Approved</span>
+                        <span class="badge badge-approved">Disetujui</span>
                     @else
-                        <span class="badge badge-rejected">Rejected</span>
+                        <span class="badge badge-rejected">Ditolak</span>
                     @endif
                 </div>
             </div>
@@ -230,7 +230,7 @@
                         @csrf
                         @method('POST')
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-check"></i> Approve
+                            <i class="fas fa-check"></i> Setuju
                         </button>
                     </form>
                     
@@ -238,7 +238,7 @@
                         @csrf
                         @method('POST')
                         <button type="submit" class="btn btn-outline">
-                            <i class="fas fa-times"></i> Reject
+                            <i class="fas fa-times"></i> Tolak
                         </button>
                     </form>
                 </div>

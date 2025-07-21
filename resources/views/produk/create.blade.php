@@ -422,7 +422,8 @@
 
                     <div id="detail-wrapper-0">
                         <h5 class="form-section-title" style="font-size: 15px;">
-                            <i class="fas fa-list-ul mr-2"></i>Detail dan Stok
+                            <i class="fas fa-list-ul mr-2"></i>Detail Produk
+                    
                         </h5>
 
                         <div class="detail-container">
@@ -442,12 +443,12 @@
                                     </div>
                                 </div>
                                 
-                                <div class="col-md-6">
+                                <!-- <div class="col-md-6">
                                     <div class="form-group">
                                         <label class="required">Stok Awal</label>
                                         <input type="number" name="varian[0][detail][0][stok]" class="form-control" required min="0">
                                     </div>
-                                </div>
+                                </div> -->
                             </div>
                         </div>
 

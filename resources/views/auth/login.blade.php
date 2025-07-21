@@ -90,7 +90,7 @@
                                 </div>
 
                                 <button type="submit" class="btn btn-primary btn-user btn-block btn-login">
-                                    Login
+                                    Masuk
                                 </button>
                             </form>
 

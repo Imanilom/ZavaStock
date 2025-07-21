@@ -293,9 +293,9 @@
                 <div class="filter-group">
                     <select class="filter-select" name="status" id="statusFilter">
                         <option value="">Semua Status</option>
-                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
-                        <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Menunggu Persetujuan</option>
+                        <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Disetujui</option>
+                        <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Ditolak</option>
                     </select>
                     <input type="date" 
                            class="date-input" 
@@ -349,11 +349,11 @@
                                 <td class="text-right">{{ number_format($item->kuantitas) }}</td>
                                 <td>
                                     @if($item->status == 'pending')
-                                        <span class="badge badge-pending">Pending</span>
+                                        <span class="badge badge-pending">Menunggu Persetujuan</span>
                                     @elseif($item->status == 'approved')
-                                        <span class="badge badge-approved">Approved</span>
+                                        <span class="badge badge-approved">Disetujui</span>
                                     @else
-                                        <span class="badge badge-rejected">Rejected</span>
+                                        <span class="badge badge-rejected">Ditolak</span>
                                     @endif
                                 </td>
                                 <td class="action-cell">

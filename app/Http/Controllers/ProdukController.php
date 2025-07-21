@@ -79,7 +79,7 @@ class ProdukController extends Controller
             'varian.*.harga_jual' => 'required|numeric',
             'varian.*.harga_beli' => 'required|numeric',
             'varian.*.detail.*.nama' => 'required',
-            'varian.*.detail.*.stok' => 'required|numeric',
+           
         ]);
 
         // Upload foto produk
@@ -122,7 +122,7 @@ class ProdukController extends Controller
                         'kode_detail' => Str::random(10),
                         'varian_id' => $varian->id,
                         'detail' => $detailData['nama'],
-                        'stok' => $detailData['stok'],
+                        'stok' => $detailData['stok'] ?? 0,
                     ]);
                 }
             }
@@ -158,7 +158,7 @@ class ProdukController extends Controller
             'varian.*.harga_jual' => 'required|numeric',
             'varian.*.harga_beli' => 'required|numeric',
             'varian.*.detail.*.nama' => 'required',
-            'varian.*.detail.*.stok' => 'required|numeric',
+          
         ]);
 
         // Update foto produk jika ada
@@ -217,7 +217,7 @@ class ProdukController extends Controller
                         [
                             'kode_detail' => $detailData['kode_detail'] ?? Str::random(10),
                             'detail' => $detailData['nama'],
-                            'stok' => $detailData['stok'],
+                           
                         ]
                     );
                     $existingDetailIds[] = $detail->id;

@@ -14,15 +14,17 @@
         --info-color: #17a2b8;
         --light-color: #f8f9fa;
         --dark-color: #343a40;
-        --border-radius: 8px;
+        --border-radius: 10px;
         --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         --transition: all 0.3s ease;
+        --form-control-height: 48px;
+        --form-control-font-size: 16px;
     }
 
     .stok-container {
-        max-width: 800px;
-        margin: 20px auto;
-        padding: 0 15px;
+        max-width: 900px;
+        margin: 30px auto;
+        padding: 0 20px;
     }
 
     .card {
@@ -35,50 +37,50 @@
     }
 
     .card-header {
-        padding: 20px 25px;
+        padding: 25px 30px;
         border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         background-color: white;
     }
 
     .card-title {
-        font-size: 1.25rem;
+        font-size: 1.5rem;
         font-weight: 600;
         color: var(--dark-color);
         margin: 0;
     }
 
     .card-body {
-        padding: 25px;
+        padding: 30px;
     }
 
     .form-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 20px;
+        gap: 25px;
     }
 
     .form-section {
-        margin-bottom: 20px;
+        margin-bottom: 30px;
     }
 
     .form-section-title {
-        font-size: 1rem;
+        font-size: 1.1rem;
         font-weight: 600;
         color: var(--dark-color);
-        margin-bottom: 15px;
-        padding-bottom: 8px;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
         border-bottom: 1px solid #eee;
     }
 
     .form-group {
-        margin-bottom: 15px;
+        margin-bottom: 20px;
     }
 
     label {
-        font-size: 0.875rem;
+        font-size: 0.95rem;
         font-weight: 500;
         display: block;
-        margin-bottom: 6px;
+        margin-bottom: 8px;
         color: var(--dark-color);
     }
 
@@ -89,12 +91,27 @@
 
     .form-control {
         width: 100%;
-        padding: 10px 12px;
-        font-size: 0.875rem;
+        height: var(--form-control-height);
+        padding: 12px 15px;
+        font-size: var(--form-control-font-size);
         border-radius: var(--border-radius);
         border: 1px solid #e0e0e0;
         transition: var(--transition);
         background-color: #f8f9fa;
+    }
+
+    select.form-control {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236c757d' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 15px center;
+        background-size: 16px;
+    }
+
+    textarea.form-control {
+        height: auto;
+        min-height: 120px;
+        resize: vertical;
     }
 
     .form-control:focus {
@@ -105,16 +122,16 @@
     }
 
     .btn {
-        padding: 10px 20px;
+        padding: 12px 24px;
         border-radius: var(--border-radius);
         font-weight: 500;
-        font-size: 0.875rem;
+        font-size: 1rem;
         border: none;
         cursor: pointer;
         transition: var(--transition);
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
     }
 
     .btn-primary {
@@ -139,37 +156,37 @@
 
     .produk-info {
         background-color: #f8f9fa;
-        padding: 15px;
+        padding: 20px;
         border-radius: var(--border-radius);
-        margin-bottom: 15px;
+        margin-bottom: 20px;
         border-left: 4px solid var(--primary-color);
     }
 
     .produk-info p {
-        margin: 5px 0;
-        font-size: 0.875rem;
+        margin: 8px 0;
+        font-size: 0.95rem;
     }
 
     .produk-info .label {
         font-weight: 600;
         display: inline-block;
-        width: 100px;
+        width: 120px;
         color: var(--secondary-color);
     }
 
     .error-message {
         color: var(--danger-color);
-        font-size: 0.75rem;
-        margin-top: 5px;
+        font-size: 0.85rem;
+        margin-top: 8px;
     }
 
     .alert-danger {
         background-color: #f8d7da;
         color: #721c24;
-        padding: 12px 15px;
+        padding: 15px 20px;
         border-radius: var(--border-radius);
-        margin-bottom: 20px;
-        font-size: 0.875rem;
+        margin-bottom: 25px;
+        font-size: 0.95rem;
     }
 
     .alert-danger ul {
@@ -177,9 +194,32 @@
         padding-left: 20px;
     }
 
+    .form-actions {
+        margin-top: 30px;
+        display: flex;
+        gap: 15px;
+    }
+
     @media (max-width: 768px) {
         .form-grid {
             grid-template-columns: 1fr;
+        }
+        
+        .card-header {
+            padding: 20px;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .btn {
+            width: 100%;
+            justify-content: center;
         }
     }
 </style>
@@ -310,11 +350,11 @@
 
                     <div class="form-group">
                         <label>Catatan</label>
-                        <textarea name="catatan" class="form-control" rows="3">{{ old('catatan') }}</textarea>
+                        <textarea name="catatan" class="form-control" rows="4">{{ old('catatan') }}</textarea>
                     </div>
                 </div>
 
-                <div style="margin-top: 25px; display: flex; gap: 10px;">
+                <div class="form-actions">
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save"></i> Simpan
                     </button>

@@ -48,4 +48,14 @@ class User extends Authenticatable
         return $this->hasOne(Admin::class, 'user_id')->withDefault();
     }
 
+    public function customer()
+    {
+        return $this->hasOne(Customer::class, 'user_id')->withDefault();
+    }
+
+    public function supplier()
+    {
+        return $this->hasOne(Supplier::class, 'user_id')->withDefault();
+    }
+
 }

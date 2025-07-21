@@ -10,27 +10,40 @@ use App\Models\ProdukDetail;
 use App\Models\Gudang;
 use App\Models\GudangRak;
 use App\Models\Customer;
+use App\Models\TransaksiRiwayat;
+use App\Models\TransaksiItemRiwayat;
+use App\Models\AktivitasRiwayat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class StokKeluarController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        $stokKeluar = StokKeluar::with(['produk', 'gudang', 'user', 'customer'])
-            ->latest()
-            ->paginate(20);
+        $query = StokKeluar::with(['produk', 'gudang', 'user', 'customer'])
+            ->latest();
+
+        if ($request->filled('search')) {
+            $query->whereHas('produk', function ($q) use ($request) {
+                $q->where('nama_produk', 'like', "%{$request->search}%")
+                  ->orWhere('sku', 'like', "%{$request->search}%");
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('tanggal_keluar')) {
+            $query->whereDate('created_at', $request->tanggal_keluar);
+        }
+
+        $stokKeluar = $query->paginate(20);
 
         return view('stok-keluar.index', compact('stokKeluar'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $gudangs = Gudang::aktif()->get();
@@ -59,13 +72,9 @@ class StokKeluarController extends Controller
             ];
         });
 
- 
         return view('stok-keluar.create', compact('gudangs', 'customers', 'users', 'produks'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -76,42 +85,98 @@ class StokKeluarController extends Controller
             'rak' => 'nullable|string|max:50',
             'customer_id' => 'nullable|exists:customers,id',
             'kuantitas' => 'required|integer|min:1',
+            'harga_satuan' => 'nullable|numeric|min:0',
             'catatan' => 'nullable|string|max:500',
         ]);
 
-        DB::transaction(function () use ($validated) {
-            StokKeluar::create([
-                'user_id' => Auth::id(),
-                'produk_id' => $validated['produk_id'],
-                'varian_id' => $validated['varian_id'],
-                'detail_id' => $validated['detail_id'],
-                'gudang_id' => $validated['gudang_id'],
-                'rak' => $validated['rak'] ?? null,
-                'customer_id' => $validated['customer_id'] ?? null,
-                'kuantitas' => $validated['kuantitas'],
-                'catatan' => $validated['catatan'],
-                'status' => Auth::user()->can('approve-stok-keluar') 
-                    ? 'approved' 
-                    : 'pending',
-            ]);
-        });
+        try {
+            DB::transaction(function () use ($validated) {
+                $stokKeluar = StokKeluar::create([
+                    'user_id' => Auth::id(),
+                    'produk_id' => $validated['produk_id'],
+                    'varian_id' => $validated['varian_id'],
+                    'detail_id' => $validated['detail_id'],
+                    'gudang_id' => $validated['gudang_id'],
+                    'rak' => $validated['rak'] ?? null,
+                    'customer_id' => $validated['customer_id'] ?? null,
+                    'kuantitas' => $validated['kuantitas'],
+                    'harga_satuan' => $validated['harga_satuan'] ?? 0,
+                    'catatan' => $validated['catatan'],
+                    'status' => Auth::user()->can('approve-stok-keluar') 
+                        ? 'approved' 
+                        : 'pending',
+                ]);
 
-        return redirect()->route('stok-keluar.index')
-            ->with('success', 'Data stok keluar berhasil dicatat');
+                // Record transaction history
+                $transaksi = TransaksiRiwayat::create([
+                    'user_id' => Auth::id(),
+                    'jenis_transaksi' => 'stok_keluar',
+                    'transaksi_id' => $stokKeluar->id,
+                    'kode_transaksi' => 'SK-' . date('Ymd') . '-' . str_pad($stokKeluar->id, 5, '0', STR_PAD_LEFT),
+                    'tanggal_transaksi' => now(),
+                    'total_item' => $validated['kuantitas'],
+                    'total_nilai' => $validated['kuantitas'] * ($validated['harga_satuan'] ?? 0),
+                    'keterangan' => 'Stok keluar produk ' . $stokKeluar->produk->nama_produk,
+                ]);
+
+                // Record transaction items
+                TransaksiItemRiwayat::create([
+                    'transaksi_id' => $transaksi->id,
+                    'jenis_transaksi' => 'stok_keluar',
+                    'produk_id' => $validated['produk_id'],
+                    'varian_id' => $validated['varian_id'],
+                    'detail_id' => $validated['detail_id'],
+                    'kuantitas' => $validated['kuantitas'],
+                    'harga_satuan' => $validated['harga_satuan'] ?? 0,
+                    'subtotal' => $validated['kuantitas'] * ($validated['harga_satuan'] ?? 0),
+                    'gudang_id' => $validated['gudang_id'],
+                    'rak' => $validated['rak'] ?? null,
+                    'keterangan' => $validated['catatan'] ?? 'Stok keluar produk',
+                ]);
+
+                // Record activity
+                AktivitasRiwayat::create([
+                    'user_id' => Auth::id(),
+                    'tipe_aktivitas' => 'create',
+                    'subjek_tipe' => 'stok_keluar',
+                    'subjek_id' => $stokKeluar->id,
+                    'deskripsi' => 'Menambahkan stok keluar baru',
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ]);
+
+                if ($stokKeluar->status === 'approved') {
+                    $this->updateStockAfterKeluar($stokKeluar);
+                }
+            });
+
+            return redirect()->route('stok-keluar.index')
+                ->with('success', 'Data stok keluar berhasil dicatat');
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', 'Gagal menyimpan stok keluar: ' . $e->getMessage());
+        }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show($id)
     {
         $stokKeluar = StokKeluar::with(['produk', 'varian', 'detail', 'gudang', 'user', 'customer'])->findOrFail($id);
-        return view('stok-keluar.show', compact('stokKeluar'));
+        
+        // Get related transaction history
+        $transaksi = TransaksiRiwayat::with('items')
+            ->where('jenis_transaksi', 'stok_keluar')
+            ->where('transaksi_id', $id)
+            ->first();
+
+        // Get related activities
+        $aktivitas = AktivitasRiwayat::with('user')
+            ->where('subjek_tipe', 'stok_keluar')
+            ->where('subjek_id', $id)
+            ->latest()
+            ->get();
+
+        return view('stok-keluar.show', compact('stokKeluar', 'transaksi', 'aktivitas'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit($id)
     {
         $stokKeluar = StokKeluar::findOrFail($id);
@@ -123,9 +188,6 @@ class StokKeluarController extends Controller
         return view('stok-keluar.edit', compact('stokKeluar', 'gudangs', 'customers', 'users', 'produks'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, $id)
     {
         $stokKeluar = StokKeluar::findOrFail($id);
@@ -138,39 +200,107 @@ class StokKeluarController extends Controller
             'rak' => 'nullable|string|max:50',
             'customer_id' => 'nullable|exists:customers,id',
             'kuantitas' => 'required|integer|min:1',
+            'harga_satuan' => 'nullable|numeric|min:0',
             'catatan' => 'nullable|string|max:500',
         ]);
 
-        $stokKeluar->update([
-            'produk_id' => $validated['produk_id'],
-            'varian_id' => $validated['varian_id'],
-            'detail_id' => $validated['detail_id'],
-            'gudang_id' => $validated['gudang_id'],
-            'rak' => $validated['rak'] ?? null,
-            'customer_id' => $validated['customer_id'] ?? null,
-            'kuantitas' => $validated['kuantitas'],
-            'catatan' => $validated['catatan'],
-        ]);
+        try {
+            DB::transaction(function () use ($stokKeluar, $validated) {
+                $stokKeluar->update([
+                    'produk_id' => $validated['produk_id'],
+                    'varian_id' => $validated['varian_id'],
+                    'detail_id' => $validated['detail_id'],
+                    'gudang_id' => $validated['gudang_id'],
+                    'rak' => $validated['rak'] ?? null,
+                    'customer_id' => $validated['customer_id'] ?? null,
+                    'kuantitas' => $validated['kuantitas'],
+                    'harga_satuan' => $validated['harga_satuan'] ?? 0,
+                    'catatan' => $validated['catatan'],
+                ]);
 
-        return redirect()->route('stok-keluar.index')
-            ->with('success', 'Data stok keluar berhasil diperbarui');
+                // Update transaction history if exists
+                $transaksi = TransaksiRiwayat::where('jenis_transaksi', 'stok_keluar')
+                    ->where('transaksi_id', $stokKeluar->id)
+                    ->first();
+
+                if ($transaksi) {
+                    $transaksi->update([
+                        'total_item' => $validated['kuantitas'],
+                        'total_nilai' => $validated['kuantitas'] * ($validated['harga_satuan'] ?? 0),
+                        'keterangan' => 'Stok keluar produk ' . $stokKeluar->produk->nama_produk . ' (UPDATED)',
+                    ]);
+
+                    // Update transaction items
+                    $item = TransaksiItemRiwayat::where('transaksi_id', $transaksi->id)
+                        ->where('jenis_transaksi', 'stok_keluar')
+                        ->first();
+
+                    if ($item) {
+                        $item->update([
+                            'produk_id' => $validated['produk_id'],
+                            'varian_id' => $validated['varian_id'],
+                            'detail_id' => $validated['detail_id'],
+                            'kuantitas' => $validated['kuantitas'],
+                            'harga_satuan' => $validated['harga_satuan'] ?? 0,
+                            'subtotal' => $validated['kuantitas'] * ($validated['harga_satuan'] ?? 0),
+                            'gudang_id' => $validated['gudang_id'],
+                            'rak' => $validated['rak'] ?? null,
+                            'keterangan' => $validated['catatan'] ?? 'Stok keluar produk',
+                        ]);
+                    }
+                }
+
+                // Record activity
+                AktivitasRiwayat::create([
+                    'user_id' => Auth::id(),
+                    'tipe_aktivitas' => 'update',
+                    'subjek_tipe' => 'stok_keluar',
+                    'subjek_id' => $stokKeluar->id,
+                    'deskripsi' => 'Memperbarui data stok keluar',
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ]);
+            });
+
+            return redirect()->route('stok-keluar.index')
+                ->with('success', 'Data stok keluar berhasil diperbarui');
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', 'Gagal memperbarui stok keluar: ' . $e->getMessage());
+        }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($id)
     {
         $stokKeluar = StokKeluar::findOrFail($id);
-        $stokKeluar->delete();
 
-        return redirect()->route('stok-keluar.index')
-            ->with('success', 'Data stok keluar berhasil dihapus');
+        try {
+            DB::transaction(function () use ($stokKeluar) {
+                // Delete related transaction history
+                TransaksiRiwayat::where('jenis_transaksi', 'stok_keluar')
+                    ->where('transaksi_id', $stokKeluar->id)
+                    ->delete();
+
+                // Record activity
+                AktivitasRiwayat::create([
+                    'user_id' => Auth::id(),
+                    'tipe_aktivitas' => 'delete',
+                    'subjek_tipe' => 'stok_keluar',
+                    'subjek_id' => $stokKeluar->id,
+                    'deskripsi' => 'Menghapus data stok keluar',
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ]);
+
+                $stokKeluar->delete();
+            });
+
+            return redirect()->route('stok-keluar.index')
+                ->with('success', 'Data stok keluar berhasil dihapus');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal menghapus stok keluar: ' . $e->getMessage());
+        }
     }
 
-    /**
-     * Approve pending stok keluar
-     */
     public function approve($id)
     {
         $stokKeluar = StokKeluar::findOrFail($id);
@@ -180,33 +310,85 @@ class StokKeluarController extends Controller
         }
 
         try {
-            $stokKeluar->approve(auth()->user());
+            DB::transaction(function () use ($stokKeluar) {
+                $stokKeluar->update([
+                    'status' => 'approved',
+                    'approved_by' => Auth::id(),
+                    'approved_at' => now(),
+                ]);
+
+                $this->updateStockAfterKeluar($stokKeluar);
+
+                // Update transaction status in history
+                $transaksi = TransaksiRiwayat::where('jenis_transaksi', 'stok_keluar')
+                    ->where('transaksi_id', $stokKeluar->id)
+                    ->first();
+
+                if ($transaksi) {
+                    $transaksi->update([
+                        'keterangan' => 'Stok keluar produk ' . $stokKeluar->produk->nama_produk . ' (APPROVED)'
+                    ]);
+                }
+
+                // Record approval activity
+                AktivitasRiwayat::create([
+                    'user_id' => Auth::id(),
+                    'tipe_aktivitas' => 'approve',
+                    'subjek_tipe' => 'stok_keluar',
+                    'subjek_id' => $stokKeluar->id,
+                    'deskripsi' => 'Menyetujui stok keluar',
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ]);
+            });
+
             return back()->with('success', 'Stok keluar telah diapprove dan stok dikurangi');
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal approve stok keluar: ' . $e->getMessage());
         }
     }
 
-
-    /**
-     * Reject stok keluar
-     */
     public function reject($id)
     {
         $stokKeluar = StokKeluar::findOrFail($id);
 
-        $stokKeluar->update([
-            'status' => 'rejected',
-            'approved_by' => Auth::id(),
-            'approved_at' => now(),
-        ]);
+        try {
+            DB::transaction(function () use ($stokKeluar) {
+                $stokKeluar->update([
+                    'status' => 'rejected',
+                    'approved_by' => Auth::id(),
+                    'approved_at' => now(),
+                ]);
 
-        return back()->with('success', 'Stok keluar telah ditolak.');
+                // Update transaction status in history
+                $transaksi = TransaksiRiwayat::where('jenis_transaksi', 'stok_keluar')
+                    ->where('transaksi_id', $stokKeluar->id)
+                    ->first();
+
+                if ($transaksi) {
+                    $transaksi->update([
+                        'keterangan' => 'Stok keluar produk ' . $stokKeluar->produk->nama_produk . ' (REJECTED)'
+                    ]);
+                }
+
+                // Record rejection activity
+                AktivitasRiwayat::create([
+                    'user_id' => Auth::id(),
+                    'tipe_aktivitas' => 'reject',
+                    'subjek_tipe' => 'stok_keluar',
+                    'subjek_id' => $stokKeluar->id,
+                    'deskripsi' => 'Menolak stok keluar',
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ]);
+            });
+
+            return back()->with('success', 'Stok keluar telah ditolak.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal menolak stok keluar: ' . $e->getMessage());
+        }
     }
 
-    /**
-     * Helper to reduce stock after approval
-     */
     protected function updateStockAfterKeluar(StokKeluar $stokKeluar)
     {
         if ($stokKeluar->detail_id) {

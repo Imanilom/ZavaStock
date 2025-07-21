@@ -302,10 +302,10 @@
 <div class="supplier-container">
     <div class="card">
         <div class="card-header">
-            <h2 class="card-title">Manajemen Supplier</h2>
+            <h2 class="card-title">Manajemen Pemasok</h2>
             <div class="action-buttons">
                 <button class="btn btn-primary" onclick="showFormSupplier('add')" id="btnAddSupplier">
-                    <i class="fas fa-plus"></i> Tambah Supplier
+                    <i class="fas fa-plus"></i> Tambah Pemasok
                 </button>
             </div>
         </div>
@@ -314,7 +314,7 @@
             <!-- Search Box -->
             <div class="search-box">
                 <i class="fas fa-search search-icon"></i>
-                <input type="search" class="search-input" placeholder="Cari supplier..." id="searchInputSupplier">
+                <input type="search" class="search-input" placeholder="Cari Pemasok..." id="searchInputSupplier">
             </div>
 
             <!-- Form Tambah/Edit -->
@@ -329,7 +329,7 @@
 
                 <div class="form-group">
                     <label class="form-label">Nama</label>
-                    <input type="text" name="name" id="namaInputSupplier" class="form-control" required>
+                    <input type="text" name="nama" id="namaInputSupplier" class="form-control" required>
                 </div>
 
                 <div class="form-group">
@@ -337,15 +337,18 @@
                     <input type="email" name="email" id="emailInputSupplier" class="form-control" required>
                 </div>
 
-                <div class="form-group">
+        
+                <!-- <div class="form-group">
                     <label class="form-label">Password</label>
-                    <input type="password" name="password" id="passwordInputSupplier" class="form-control" required>
+                    <input type="password" name="password" id="passwordInputSupplier" class="form-control" required minlength="6">
+                    <div class="error-message" id="passwordError">Password harus minimal 6 karakter</div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Konfirmasi Password</label>
-                    <input type="password" name="password_confirmation" class="form-control" required>
-                </div>
+                    <input type="password" name="password_confirmation" id="confirmPasswordInput" class="form-control" required>
+                   
+                </div> -->
 
                 <div class="form-group">
                     <label class="form-label">Telepon</label>
@@ -412,7 +415,7 @@
                                         <form method="POST" action="{{ route('supplier.destroy', $supplier->id) }}" style="display:inline;">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn-action btn-delete" title="Hapus" onclick="return confirm('Yakin ingin menghapus supplier ini?')">
+                                            <button type="submit" class="btn-action btn-delete" title="Hapus" onclick="return confirm('Yakin ingin menghapus Pemasok ini?')">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
@@ -425,9 +428,9 @@
                                             <div class="empty-icon">
                                                 <i class="fas fa-truck"></i>
                                             </div>
-                                            <h4 class="empty-text">Belum ada data supplier</h4>
+                                            <h4 class="empty-text">Belum ada data pemasok</h4>
                                             <button class="btn btn-primary" onclick="showFormSupplier('add')">
-                                                <i class="fas fa-plus"></i> Tambah Supplier Pertama
+                                                <i class="fas fa-plus"></i> Tambah Pemasok Pertama
                                             </button>
                                         </div>
                                     </td>
@@ -462,9 +465,9 @@
         if (existingMethod) existingMethod.remove();
 
         if (mode === 'add') {
-            cardTitle.innerText = 'Tambah Supplier';
+            cardTitle.innerText = 'Tambah Pemasok';
             form.action = "{{ route('supplier.store') }}";
-            document.getElementById('passwordInputSupplier').required = true;
+            // document.getElementById('passwordInputSupplier').required = true;
         } else {
             cardTitle.innerText = 'Edit Supplier';
             form.action = "{{ url('supplier') }}/" + mode;
@@ -476,7 +479,7 @@
             methodInput.value = 'PUT';
             form.appendChild(methodInput);
 
-            document.getElementById('passwordInputSupplier').required = false;
+            // document.getElementById('passwordInputSupplier').required = false;
         }
 
         form.style.display = 'block';
@@ -542,11 +545,11 @@
     function confirmDeleteSelected() {
         const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
         if (checkedBoxes.length === 0) {
-            alert('Pilih setidaknya satu supplier untuk dihapus');
+            alert('Pilih setidaknya satu Pemasok untuk dihapus');
             return;
         }
 
-        if (confirm(`Yakin ingin menghapus ${checkedBoxes.length} supplier yang dipilih?`)) {
+        if (confirm(`Yakin ingin menghapus ${checkedBoxes.length} Pemasok yang dipilih?`)) {
             document.getElementById('deleteSupplierForm').submit();
         }
     }

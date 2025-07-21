@@ -13,37 +13,37 @@
         --info-color: #17a2b8;
         --light-color: #f8f9fa;
         --dark-color: #343a40;
-        --border-radius: 8px;
-        --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        --border-radius: 12px;
+        --box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
         --transition: all 0.3s ease;
     }
 
     .main-container {
-        max-width: 1200px;
-        margin: 20px auto;
-        padding: 0 15px;
+        max-width: 1400px;
+        margin: 30px auto;
+        padding: 0 25px;
     }
 
     .card {
         background-color: white;
         border-radius: var(--border-radius);
         box-shadow: var(--box-shadow);
-        padding: 30px;
-        margin-top: 20px;
+        padding: 40px;
+        margin-top: 30px;
     }
 
     .card-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 25px;
-        padding-bottom: 15px;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
         border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     }
 
     .card-title {
-        font-size: 1.5rem;
-        font-weight: 600;
+        font-size: 1.8rem;
+        font-weight: 700;
         color: var(--dark-color);
         margin: 0;
     }
@@ -63,10 +63,10 @@
 
     .search-input {
         width: 100%;
-        padding: 12px 15px 12px 40px;
+        padding: 14px 15px 14px 45px;
         border-radius: var(--border-radius);
-        border: 1px solid #e0e0e0;
-        font-size: 0.875rem;
+        border: 2px solid #e0e0e0;
+        font-size: 16px;
         transition: var(--transition);
         background-color: #f8f9fa;
     }
@@ -75,7 +75,7 @@
         outline: none;
         border-color: var(--primary-color);
         background-color: white;
-        box-shadow: 0 0 0 3px rgba(92, 72, 238, 0.1);
+        box-shadow: 0 0 0 4px rgba(92, 72, 238, 0.15);
     }
 
     .search-icon {
@@ -84,19 +84,20 @@
         top: 50%;
         transform: translateY(-50%);
         color: var(--secondary-color);
+        font-size: 18px;
     }
 
     .btn {
-        padding: 10px 20px;
+        padding: 14px 28px;
         border-radius: var(--border-radius);
         font-weight: 500;
-        font-size: 0.875rem;
+        font-size: 16px;
         border: none;
         cursor: pointer;
         transition: var(--transition);
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
     }
 
     .btn-primary {
@@ -110,7 +111,7 @@
     }
 
     .btn-outline {
-        border: 1px solid var(--primary-color);
+        border: 2px solid var(--primary-color);
         background-color: white;
         color: var(--primary-color);
     }
@@ -130,12 +131,13 @@
 
     .table-responsive {
         overflow-x: auto;
+        margin-top: 30px;
     }
 
     .kategori-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 0.875rem;
+        font-size: 16px;
     }
 
     .kategori-table thead {
@@ -143,7 +145,7 @@
     }
 
     .kategori-table th {
-        padding: 15px;
+        padding: 18px;
         text-align: left;
         font-weight: 600;
         color: var(--dark-color);
@@ -151,7 +153,7 @@
     }
 
     .kategori-table td {
-        padding: 15px;
+        padding: 18px;
         border-bottom: 1px solid #e9ecef;
         vertical-align: middle;
     }
@@ -162,12 +164,12 @@
 
     .action-cell {
         display: flex;
-        gap: 10px;
+        gap: 12px;
     }
 
     .btn-action {
-        width: 34px;
-        height: 34px;
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -176,6 +178,7 @@
         background: none;
         cursor: pointer;
         transition: var(--transition);
+        font-size: 16px;
     }
 
     .btn-edit {
@@ -198,43 +201,63 @@
 
     .empty-state {
         text-align: center;
-        padding: 40px 20px;
+        padding: 60px 20px;
     }
 
     .empty-icon {
-        font-size: 3rem;
+        font-size: 3.5rem;
         color: #adb5bd;
-        margin-bottom: 15px;
+        margin-bottom: 20px;
     }
 
     .empty-text {
         color: #6c757d;
-        margin-bottom: 20px;
+        margin-bottom: 30px;
+        font-size: 1.2rem;
     }
 
     .pagination-container {
         display: flex;
         justify-content: flex-end;
-        margin-top: 20px;
+        margin-top: 30px;
     }
 
     .form-kategori {
-        background-color: #f8f9fa;
+        background-color: white;
         border-radius: var(--border-radius);
-        padding: 25px;
-        margin-bottom: 25px;
+        padding: 40px;
+        margin-bottom: 40px;
         display: none;
+        border: 1px solid #e0e0e0;
+        box-shadow: var(--box-shadow);
+    }
+
+    .form-header {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--dark-color);
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .form-header i {
+        color: var(--primary-color);
+        font-size: 1.8rem;
     }
 
     .form-group {
-        margin-bottom: 20px;
+        margin-bottom: 25px;
     }
 
     .form-label {
         display: block;
-        font-size: 14px;
+        font-size: 16px;
         font-weight: 500;
-        margin-bottom: 8px;
+        margin-bottom: 12px;
         color: #555;
     }
 
@@ -245,40 +268,42 @@
 
     .form-control {
         width: 100%;
-        padding: 10px 15px;
-        border: 1px solid #ddd;
+        padding: 14px 18px;
+        border: 2px solid #e0e0e0;
         border-radius: var(--border-radius);
-        font-size: 14px;
+        font-size: 16px;
         transition: var(--transition);
         background-color: #fff;
     }
 
     .form-control:focus {
         border-color: var(--primary-color);
-        box-shadow: 0 0 0 0.2rem rgba(92, 72, 238, 0.25);
+        box-shadow: 0 0 0 4px rgba(92, 72, 238, 0.15);
         outline: none;
     }
 
     textarea.form-control {
-        min-height: 100px;
+        min-height: 150px;
         resize: vertical;
     }
 
     .form-actions {
         display: flex;
         justify-content: flex-end;
-        gap: 15px;
-        margin-top: 20px;
+        gap: 20px;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
     }
 
     .checkbox-cell {
-        width: 40px;
+        width: 50px;
         text-align: center;
     }
 
     .checkbox-cell input[type="checkbox"] {
-        width: 16px;
-        height: 16px;
+        width: 18px;
+        height: 18px;
     }
 
     @media (max-width: 768px) {
@@ -308,6 +333,20 @@
         .btn {
             width: 100%;
         }
+
+        .form-kategori {
+            padding: 30px 20px;
+        }
+    }
+
+    @media (min-width: 1200px) {
+        .form-kategori {
+            padding: 50px;
+        }
+        
+        .form-control {
+            padding: 16px 20px;
+        }
     }
 </style>
 
@@ -322,8 +361,13 @@
             </div>
         </div>
 
-        <!-- Form Tambah/Edit -->
+        <!-- Enhanced Form -->
         <div id="formKategori" class="form-kategori">
+            <div class="form-header">
+                <i class="fas fa-tags"></i>
+                <span id="formTitle">Tambah Kategori Baru</span>
+            </div>
+            
             <form method="POST" id="kategoriForm">
                 @csrf
                 <input type="hidden" name="_method" id="formMethod" value="POST">
@@ -356,7 +400,7 @@
 
                 <div class="form-group">
                     <label for="deskripsi" class="form-label">Deskripsi</label>
-                    <textarea name="deskripsi" id="deskripsiInput" class="form-control" rows="3"></textarea>
+                    <textarea name="deskripsi" id="deskripsiInput" class="form-control" rows="5"></textarea>
                 </div>
 
                 <div class="form-actions">
@@ -364,16 +408,21 @@
                         <i class="fas fa-times"></i> Batal
                     </button>
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Simpan
+                        <i class="fas fa-save"></i> Simpan Kategori
                     </button>
                 </div>
             </form>
         </div>
 
-        <!-- Tabel Data -->
-        <div class="table-responsive">
-            <input type="search" class="search-input" placeholder="Cari kategori..." id="searchInput">
+        <!-- Table Section -->
+        <div class="search-filter-container">
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="search" class="search-input" placeholder="Cari kategori..." id="searchInput">
+            </div>
+        </div>
 
+        <div class="table-responsive">
             <form method="POST" action="{{ route('kategori_produk.delete.multiple') }}" id="deleteForm">
                 @csrf
                 <table class="kategori-table">
@@ -451,6 +500,7 @@
     function toggleForm(mode = null, data = null) {
         const form = document.getElementById('formKategori');
         const btnAdd = document.getElementById('btnAddKategori');
+        const formTitle = document.getElementById('formTitle');
         
         if (form.style.display === 'none' || !form.style.display) {
             // Show form
@@ -464,10 +514,12 @@
             document.getElementById('idKategoriInput').disabled = false;
             
             if (mode === 'add') {
+                formTitle.textContent = 'Tambah Kategori Baru';
                 btnAdd.innerHTML = '<i class="fas fa-times"></i> Batal';
                 btnAdd.setAttribute('onclick', 'toggleForm()');
             } else if (data) {
                 // Fill form with data for editing
+                formTitle.textContent = 'Edit Kategori';
                 document.getElementById('kategoriId').value = data.id;
                 document.getElementById('idKategoriInput').value = data.id_kategori;
                 document.getElementById('namaKategoriInput').value = data.nama_kategori;
@@ -529,6 +581,23 @@
         }
     }
 
+    // Auto focus on form input when shown
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('formKategori');
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.attributeName === 'style') {
+                    if (form.style.display === 'block') {
+                        document.getElementById('idKategoriInput').focus();
+                    }
+                }
+            });
+        });
+        
+        observer.observe(form, {
+            attributes: true
+        });
+    });
 </script>
 
 @endsection

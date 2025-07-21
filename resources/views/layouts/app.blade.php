@@ -332,24 +332,24 @@
                 </a>
             </li>
 
-            <!-- Manajemen Produk -->
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('produk.*') ? 'active' : '' }}" href="{{ route('produk.index') }}">
-                    <i class="fas fa-fw fa-box-open"></i>
-                    <span>Manajemen Produk</span>
-                </a>
-            </li>
-
-            <!-- Manajemen Produk Hilang -->
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('produk-hilang.*') ? 'active' : '' }}" href="{{ route('produk-hilang.index') }}">
-                    <i class="fas fa-fw fa-exclamation-triangle"></i>
-                    <span>Manajemen Produk Hilang</span>
-                </a>
-            </li>
-
             <!-- Menu khusus Admin -->
             @if(auth()->check() && auth()->user()->role === 'admin')
+                <!-- Manajemen Produk -->
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('produk.*') ? 'active' : '' }}" href="{{ route('produk.index') }}">
+                        <i class="fas fa-fw fa-box-open"></i>
+                        <span>Manajemen Produk</span>
+                    </a>
+                </li>
+
+                <!-- Manajemen Produk Hilang -->
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('produk-hilang.*') ? 'active' : '' }}" href="{{ route('produk-hilang.index') }}">
+                        <i class="fas fa-fw fa-exclamation-triangle"></i>
+                        <span>Manajemen Produk Hilang</span>
+                    </a>
+                </li>
+
                 <!-- Manajemen Pengguna -->
                 <li class="nav-item">
                     <a class="nav-link {{ (request()->routeIs('admin.*') || request()->routeIs('customer.*') || request()->routeIs('supplier.*')) ? 'active' : '' }}" 
@@ -424,7 +424,7 @@
                     </div>
                 </li>
 
-                <!-- Approvals - Only visible to admin -->
+                <!-- Approvals -->
                 <li class="nav-item">
                     <a class="nav-link {{ (request()->get('status') == 'pending') ? 'active' : '' }}" 
                        data-bs-toggle="collapse" 
@@ -437,8 +437,8 @@
                     </a>
                     <div id="approvalsCollapse" class="collapse {{ (request()->get('status') == 'pending') ? 'show' : '' }}">
                         <div class="nav flex-column">
-                            <a class="nav-link {{ (request()->routeIs('produk-hilang.*') && request()->get('status') == 'pending') ? 'active' : '' }}" 
-                               href="{{ route('produk-hilang.index') }}?status=pending">
+                            <a class="nav-link {{ (request()->routeIs('produk-hilang.*') && request()->get('status') == 'REPORTED') ? 'active' : '' }}" 
+                               href="{{ route('produk-hilang.index') }}?status=REPORTED">
                                 <i class="fas fa-fw fa-exclamation-triangle"></i>
                                 <span>Produk Hilang</span>
                             </a>
@@ -460,6 +460,92 @@
                         </div>
                     </div>
                 </li>
+
+                <!-- Riwayat -->
+                <li class="nav-item">
+                    <a class="nav-link {{ (request()->routeIs('riwayat.*')) ? 'active' : '' }}" 
+                       data-bs-toggle="collapse" 
+                       href="#riwayatCollapse" 
+                       aria-expanded="{{ (request()->routeIs('riwayat.*')) ? 'true' : 'false' }}" 
+                       aria-controls="riwayatCollapse">
+                        <i class="fas fa-fw fa-history"></i>
+                        <span>Riwayat</span>
+                        <i class="fas fa-fw fa-caret-down"></i>
+                    </a>
+                    <div id="riwayatCollapse" class="collapse {{ (request()->routeIs('riwayat.*')) ? 'show' : '' }}">
+                        <div class="nav flex-column">
+                            <a class="nav-link {{ request()->routeIs('riwayat.transaksi.*') ? 'active' : '' }}" href="{{ route('riwayat.transaksi.index') }}">
+                                <i class="fas fa-fw fa-exchange-alt"></i>
+                                <span>Riwayat Transaksi</span>
+                            </a>
+                            <a class="nav-link {{ request()->routeIs('riwayat.aktivitas.*') ? 'active' : '' }}" href="{{ route('riwayat.aktivitas.index') }}">
+                                <i class="fas fa-fw fa-user-clock"></i>
+                                <span>Riwayat Aktivitas</span>
+                            </a>
+                        </div>
+                    </div>
+                </li>
+            @else
+                <!-- Menu untuk non-admin -->
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('produk.*') ? 'active' : '' }}" href="{{ route('produk.index') }}">
+                        <i class="fas fa-fw fa-box-open"></i>
+                        <span>Produk</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('produk-hilang.*') ? 'active' : '' }}" href="{{ route('produk-hilang.index') }}">
+                        <i class="fas fa-fw fa-exclamation-triangle"></i>
+                        <span>Produk Hilang</span>
+                    </a>
+                </li>
+                <!-- Manajemen Stok -->
+                    <li class="nav-item">
+                        <a class="nav-link {{ (request()->routeIs('stok-masuk.*') || request()->routeIs('stok-keluar.*')) ? 'active' : '' }}" 
+                        data-bs-toggle="collapse" 
+                        href="#stokCollapse" 
+                        aria-expanded="{{ (request()->routeIs('stok-masuk.*') || request()->routeIs('stok-keluar.*')) ? 'true' : 'false' }}" 
+                        aria-controls="stokCollapse">
+                            <i class="fas fa-fw fa-boxes"></i>
+                            <span>Manajemen Stok</span>
+                            <i class="fas fa-fw fa-caret-down"></i>
+                        </a>
+                        <div id="stokCollapse" class="collapse {{ (request()->routeIs('stok-masuk.*') || request()->routeIs('stok-keluar.*')) ? 'show' : '' }}">
+                            <div class="nav flex-column">
+                                <a class="nav-link {{ request()->routeIs('stok-masuk.*') ? 'active' : '' }}" href="{{ route('stok-masuk.index') }}">
+                                    <i class="fas fa-fw fa-arrow-down"></i>
+                                    <span>Stok Masuk</span>
+                                </a>
+                                <a class="nav-link {{ request()->routeIs('stok-keluar.*') ? 'active' : '' }}" href="{{ route('stok-keluar.index') }}">
+                                    <i class="fas fa-fw fa-arrow-up"></i>
+                                    <span>Stok Keluar</span>
+                                </a>
+                            </div>
+                        </div>
+                    </li>
+
+                    <!-- Riwayat -->
+                    <li class="nav-item">
+                        <a class="nav-link {{ (request()->routeIs('riwayat.*')) ? 'active' : '' }}" 
+                        data-bs-toggle="collapse" 
+                        href="#riwayatCollapse" 
+                        aria-expanded="{{ (request()->routeIs('riwayat.*')) ? 'true' : 'false' }}" 
+                        aria-controls="riwayatCollapse">
+                            <i class="fas fa-fw fa-history"></i>
+                            <span>Riwayat</span>
+                            <i class="fas fa-fw fa-caret-down"></i>
+                        </a>
+                        <div id="riwayatCollapse" class="collapse {{ (request()->routeIs('riwayat.*')) ? 'show' : '' }}">
+                            <div class="nav flex-column">
+                              
+                                <a class="nav-link {{ request()->routeIs('riwayat.aktivitas.*') ? 'active' : '' }}" href="{{ route('riwayat.aktivitas.index') }}">
+                                    <i class="fas fa-fw fa-user-clock"></i>
+                                    <span>Riwayat Aktivitas</span>
+                                </a>
+                            </div>
+                        </div>
+                    </li>
             @endif
         </div>
         
@@ -491,16 +577,16 @@
                         aria-labelledby="userDropdown">
                         <a class="dropdown-item" href="{{ route('profile') }}">
                             <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                            Profile
+                            Profil
                         </a>
                         <a class="dropdown-item" href="{{ route('settings') }}">
                             <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                            Settings
+                            Pengaturan
                         </a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
                             <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                            Logout
+                            Keluar
                         </a>
                     </div>
                 </li>

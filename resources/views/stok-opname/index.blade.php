@@ -283,8 +283,8 @@
                 <div class="filter-group">
                     <select class="filter-select" name="status" id="statusFilter">
                         <option value="">Semua Status</option>
-                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
+                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Menunggu Persetujuan</option>
+                        <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Disetujui</option>
                     </select>
                     <input type="date" 
                            class="date-input" 
@@ -331,9 +331,9 @@
                                 <td class="text-right">{{ $opname->selisih }}</td>
                                 <td>
                                     @if($opname->status == 'pending')
-                                        <span class="badge badge-pending">Pending</span>
+                                        <span class="badge badge-pending">Menunggu Persetujuan</span>
                                     @else
-                                        <span class="badge badge-approved">Approved</span>
+                                        <span class="badge badge-approved">Disetujui</span>
                                     @endif
                                 </td>
                                 <td class="action-cell">
@@ -345,7 +345,7 @@
                                         <form action="{{ route('stok-opname.approve', $opname->id) }}" method="POST" style="display:inline;">
                                             @csrf
                                             @method('PUT')
-                                            <button type="submit" class="btn btn-primary btn-sm" title="Approve">
+                                            <button type="submit" class="btn btn-primary btn-sm" title="Setuju">
                                                 <i class="fas fa-check"></i>
                                             </button>
                                         </form>

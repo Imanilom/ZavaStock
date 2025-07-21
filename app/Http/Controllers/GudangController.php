@@ -6,6 +6,8 @@ use App\Models\Gudang;
 use App\Models\GudangRak;
 use App\Models\StokMasuk;
 use App\Models\User;
+use App\Models\TransaksiRiwayat;
+use App\Models\AktivitasRiwayat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -22,14 +24,12 @@ class GudangController extends Controller
 
     public function create()
     {
-        // Ambil semua user dengan role tertentu (misalnya admin/user)
         $users = User::where('role', 'admin')->orWhere('role', 'user')->get();
         return view('gudang.create', compact('users'));
     }
 
     public function store(Request $request)
     {
-
         $validated = $request->validate([
             'kode' => 'required|unique:gudangs,kode|max:20',
             'nama' => 'required|max:100',
@@ -42,55 +42,85 @@ class GudangController extends Controller
       
         $validated['aktif'] = $request->has('aktif');
 
-        Gudang::create($validated);
+        try {
+            DB::transaction(function () use ($validated) {
+                $gudang = Gudang::create($validated);
 
-        return redirect()->route('gudang.index')
-            ->with('success', 'Gudang berhasil ditambahkan');
+                // Record activity
+                AktivitasRiwayat::create([
+                    'user_id' => auth()->id(),
+                    'tipe_aktivitas' => 'create',
+                    'subjek_tipe' => 'gudang',
+                    'subjek_id' => $gudang->id,
+                    'deskripsi' => 'Menambahkan gudang baru: ' . $gudang->nama,
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ]);
+            });
+
+            return redirect()->route('gudang.index')
+                ->with('success', 'Gudang berhasil ditambahkan');
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', 'Gagal menambahkan gudang: ' . $e->getMessage());
+        }
     }
 
-public function show($id)
-{
-    $gudang = Gudang::with([
-        'user',
-        'rak',
-        'stokMasuk' => function($query) {
-            $query->with([
-                'produk', 
-                'varian.produk', 
+    public function show($id)
+    {
+        $gudang = Gudang::with([
+            'user',
+            'rak',
+            'stokMasuk' => function($query) {
+                $query->with([
+                    'produk', 
+                    'varian.produk', 
+                    'detail.varian.produk'
+                ])
+                ->latest()
+                ->take(10);
+            }
+        ])->findOrFail($id);
+
+        // Get related activities
+        $rakIds = $gudang->rak->pluck('id');
+        $aktivitas = AktivitasRiwayat::with('user')
+            ->where(function($query) use ($id, $rakIds) {
+                $query->where(function($q) use ($id) {
+                    $q->where('subjek_tipe', 'gudang')
+                      ->where('subjek_id', $id);
+                })
+                ->orWhere(function($q) use ($rakIds) {
+                    $q->where('subjek_tipe', 'gudang_rak')
+                      ->whereIn('subjek_id', $rakIds);
+                });
+            })
+            ->latest()
+            ->get();
+
+        $stokSummary = StokMasuk::select([
+                'produk_id',
+                'varian_id',
+                'detail_id',
+                'rak',
+                DB::raw('SUM(kuantitas) as total_stok')
+            ])
+            ->where('gudang_id', $id)
+            ->where('status', 'approved')
+            ->groupBy('produk_id', 'varian_id', 'detail_id', 'rak')
+            ->with([
+                'produk',
+                'varian.produk',
                 'detail.varian.produk'
             ])
-            ->latest()
-            ->take(10);
-        }
-    ])->findOrFail($id);
+            ->get();
 
-    // Perbaikan untuk stok summary
-    $stokSummary = StokMasuk::select([
-            'produk_id',
-            'varian_id',
-            'detail_id',
-            'rak',
-            DB::raw('SUM(kuantitas) as total_stok')
-        ])
-        ->where('gudang_id', $id)
-        ->where('status', 'approved')
-        ->groupBy('produk_id', 'varian_id', 'detail_id', 'rak')
-        ->with([
-            'produk',
-            'varian.produk',
-            'detail.varian.produk'
-        ])
-        ->get();
-
-    return view('gudang.show', compact('gudang', 'stokSummary'));
-}
-
-
+        return view('gudang.show', compact('gudang', 'stokSummary', 'aktivitas'));
+    }
 
     public function edit($id)
     {
         $gudang = Gudang::findOrFail($id);
-        $users = User::where('role', 'admin')->orWhere('role', 'user')->get(); // ambil user
+        $users = User::where('role', 'admin')->orWhere('role', 'user')->get();
         return view('gudang.edit', compact('gudang', 'users'));
     }
 
@@ -109,11 +139,28 @@ public function show($id)
         ]);
 
         $validated['aktif'] = $request->has('aktif');
-    
-        $gudang->update($validated);
 
-        return redirect()->route('gudang.index', $id)
-            ->with('success', 'Data gudang berhasil diperbarui');
+        try {
+            DB::transaction(function () use ($gudang, $validated) {
+                $gudang->update($validated);
+
+                // Record activity
+                AktivitasRiwayat::create([
+                    'user_id' => auth()->id(),
+                    'tipe_aktivitas' => 'update',
+                    'subjek_tipe' => 'gudang',
+                    'subjek_id' => $gudang->id,
+                    'deskripsi' => 'Memperbarui data gudang: ' . $gudang->nama,
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ]);
+            });
+
+            return redirect()->route('gudang.index', $id)
+                ->with('success', 'Data gudang berhasil diperbarui');
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', 'Gagal memperbarui gudang: ' . $e->getMessage());
+        }
     }
 
     public function destroy($id)
@@ -124,13 +171,29 @@ public function show($id)
             return back()->with('error', 'Tidak dapat menghapus gudang yang memiliki catatan stok');
         }
 
-        $gudang->delete();
+        try {
+            DB::transaction(function () use ($gudang) {
+                // Record activity before deletion
+                AktivitasRiwayat::create([
+                    'user_id' => auth()->id(),
+                    'tipe_aktivitas' => 'delete',
+                    'subjek_tipe' => 'gudang',
+                    'subjek_id' => $gudang->id,
+                    'deskripsi' => 'Menghapus gudang: ' . $gudang->nama,
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ]);
 
-        return redirect()->route('gudang.index')
-            ->with('success', 'Gudang berhasil dihapus');
+                $gudang->delete();
+            });
+
+            return redirect()->route('gudang.index')
+                ->with('success', 'Gudang berhasil dihapus');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal menghapus gudang: ' . $e->getMessage());
+        }
     }
 
-    // Method Rak tetap sama seperti sebelumnya
     public function createRak($gudangId)
     {
         $gudang = Gudang::findOrFail($gudangId);
@@ -148,10 +211,27 @@ public function show($id)
 
         $validated['gudang_id'] = $gudangId;
 
-        GudangRak::create($validated);
+        try {
+            DB::transaction(function () use ($validated, $gudangId) {
+                $rak = GudangRak::create($validated);
 
-        return redirect()->route('gudang.show', $gudangId)
-            ->with('success', 'Rak berhasil ditambahkan');
+                // Record activity
+                AktivitasRiwayat::create([
+                    'user_id' => auth()->id(),
+                    'tipe_aktivitas' => 'create',
+                    'subjek_tipe' => 'gudang_rak',
+                    'subjek_id' => $rak->id,
+                    'deskripsi' => 'Menambahkan rak baru: ' . $rak->nama_rak . ' di gudang ' . $rak->gudang->nama,
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ]);
+            });
+
+            return redirect()->route('gudang.show', $gudangId)
+                ->with('success', 'Rak berhasil ditambahkan');
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', 'Gagal menambahkan rak: ' . $e->getMessage());
+        }
     }
 
     public function editRak($gudangId, $rakId)
@@ -172,10 +252,27 @@ public function show($id)
             'kapasitas' => 'nullable|integer|min:1',
         ]);
 
-        $rak->update($validated);
+        try {
+            DB::transaction(function () use ($rak, $validated) {
+                $rak->update($validated);
 
-        return redirect()->route('gudang.show', $gudangId)
-            ->with('success', 'Data rak berhasil diperbarui');
+                // Record activity
+                AktivitasRiwayat::create([
+                    'user_id' => auth()->id(),
+                    'tipe_aktivitas' => 'update',
+                    'subjek_tipe' => 'gudang_rak',
+                    'subjek_id' => $rak->id,
+                    'deskripsi' => 'Memperbarui data rak: ' . $rak->nama_rak,
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ]);
+            });
+
+            return redirect()->route('gudang.show', $gudangId)
+                ->with('success', 'Data rak berhasil diperbarui');
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', 'Gagal memperbarui rak: ' . $e->getMessage());
+        }
     }
 
     public function destroyRak($gudangId, $rakId)
@@ -186,9 +283,26 @@ public function show($id)
             return back()->with('error', 'Tidak dapat menghapus rak yang memiliki catatan stok');
         }
 
-        $rak->delete();
+        try {
+            DB::transaction(function () use ($rak) {
+                // Record activity before deletion
+                AktivitasRiwayat::create([
+                    'user_id' => auth()->id(),
+                    'tipe_aktivitas' => 'delete',
+                    'subjek_tipe' => 'gudang_rak',
+                    'subjek_id' => $rak->id,
+                    'deskripsi' => 'Menghapus rak: ' . $rak->nama_rak,
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ]);
 
-        return back()->with('success', 'Rak berhasil dihapus');
+                $rak->delete();
+            });
+
+            return back()->with('success', 'Rak berhasil dihapus');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal menghapus rak: ' . $e->getMessage());
+        }
     }
 
     public function laporanStok($id)
@@ -227,5 +341,4 @@ public function show($id)
 
         return response()->json($response);
     }
-
 }

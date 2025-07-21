@@ -13,6 +13,7 @@ use App\Http\Controllers\StokMasukController;
 use App\Http\Controllers\StokKeluarController;
 use App\Http\Controllers\StokOpnameController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\RiwayatController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -51,6 +52,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Produk Hilang - Customer bisa CRUD
     Route::prefix('produk-hilang')->group(function () {
+        Route::get('/search', [ProdukHilangController::class, 'searchProduk'])->name('produk-hilang.search');
         Route::get('/', [ProdukHilangController::class, 'index'])->name('produk-hilang.index');
         Route::get('/create', [ProdukHilangController::class, 'create'])->name('produk-hilang.create');
         Route::post('/', [ProdukHilangController::class, 'store'])->name('produk-hilang.store');
@@ -58,8 +60,31 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/edit', [ProdukHilangController::class, 'edit'])->name('produk-hilang.edit');
         Route::put('/{id}', [ProdukHilangController::class, 'update'])->name('produk-hilang.update');
         Route::delete('/{id}', [ProdukHilangController::class, 'destroy'])->name('produk-hilang.destroy');
-        Route::get('/search', [ProdukHilangController::class, 'searchProduk'])->name('produk-hilang.search');
+       
     });
+    // stok masuk
+     Route::prefix('stok-masuk')->group(function () {
+        Route::get('/', [StokMasukController::class, 'index'])->name('stok-masuk.index');
+        Route::get('/create', [StokMasukController::class, 'create'])->name('stok-masuk.create');
+        Route::post('', [StokMasukController::class, 'store'])->name('stok-masuk.store');
+        Route::get('/{id}', [StokMasukController::class, 'show'])->name('stok-masuk.show');
+        Route::get('/search', [StokMasukController::class, 'searchProduk'])->name('stok-masuk.search');
+        Route::get('/rak/{gudangId}', [StokMasukController::class, 'getRakByGudang'])->name('stok-masuk.rak');
+    });
+
+    // Stok Keluar 
+    Route::prefix('stok-keluar')->group(function () {
+        Route::get('/', [StokKeluarController::class, 'index'])->name('stok-keluar.index');
+        Route::get('/create', [StokKeluarController::class, 'create'])->name('stok-keluar.create');
+        Route::post('/', [StokKeluarController::class, 'store'])->name('stok-keluar.store');
+        Route::get('/{id}', [StokKeluarController::class, 'show'])->name('stok-keluar.show');
+        Route::get('/{id}/edit', [StokKeluarController::class, 'edit'])->name('stok-keluar.edit');
+        Route::put('/{id}', [StokKeluarController::class, 'update'])->name('stok-keluar.update');
+        Route::delete('/{id}', [StokKeluarController::class, 'destroy'])->name('stok-keluar.destroy');
+    });
+
+    // Riwayat Aktivitas
+    Route::get('/riwayat/aktivitas', [RiwayatController::class, 'indexAktivitas'])->name('riwayat.aktivitas.index');
 });
 
 // Rute khusus admin
@@ -107,7 +132,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('/{id}/edit', [CustomerController::class, 'edit'])->name('customer.edit');
         Route::put('/{id}', [CustomerController::class, 'update'])->name('customer.update');
         Route::delete('/{id}', [CustomerController::class, 'destroy'])->name('customer.destroy');
-        Route::post('/customer/delete/multiple', [CustomerController::class, 'deleteMultiple'])->name('customer.delete.multiple');
+        Route::delete('/customer/delete/multiple', [CustomerController::class, 'deleteMultiple'])->name('customer.delete.multiple');
     });
 
     // Manajemen Supplier - Hanya admin
@@ -156,26 +181,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::delete('/delete/multiple', [KategoriProdukController::class, 'deleteMultiple'])->name('kategori_produk.delete.multiple');
     });
 
-    // Stok Masuk - Hanya admin
-    Route::prefix('stok-masuk')->group(function () {
-        Route::get('/', [StokMasukController::class, 'index'])->name('stok-masuk.index');
-        Route::get('/create', [StokMasukController::class, 'create'])->name('stok-masuk.create');
-        Route::post('', [StokMasukController::class, 'store'])->name('stok-masuk.store');
-        Route::get('/{id}', [StokMasukController::class, 'show'])->name('stok-masuk.show');
-        Route::get('/search', [StokMasukController::class, 'searchProduk'])->name('stok-masuk.search');
-        Route::get('/rak/{gudangId}', [StokMasukController::class, 'getRakByGudang'])->name('stok-masuk.rak');
-    });
 
-    // Stok Keluar - Hanya admin
-    Route::prefix('stok-keluar')->group(function () {
-        Route::get('/', [StokKeluarController::class, 'index'])->name('stok-keluar.index');
-        Route::get('/create', [StokKeluarController::class, 'create'])->name('stok-keluar.create');
-        Route::post('/', [StokKeluarController::class, 'store'])->name('stok-keluar.store');
-        Route::get('/{id}', [StokKeluarController::class, 'show'])->name('stok-keluar.show');
-        Route::get('/{id}/edit', [StokKeluarController::class, 'edit'])->name('stok-keluar.edit');
-        Route::put('/{id}', [StokKeluarController::class, 'update'])->name('stok-keluar.update');
-        Route::delete('/{id}', [StokKeluarController::class, 'destroy'])->name('stok-keluar.destroy');
-    });
 
     // Stok Opname - Hanya admin
     Route::prefix('stok-opname')->group(function () {
@@ -188,4 +194,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::delete('/{id}', [StokOpnameController::class, 'destroy'])->name('stok-opname.destroy');
         Route::get('/{id}/export', [StokOpnameController::class, 'exportPdf'])->name('stok-opname.export');
     });
+
+    // Riwayat Transaksi
+    Route::get('/riwayat/transaksi', [RiwayatController::class, 'indexTransaksi'])->name('riwayat.transaksi.index');
+    Route::get('/riwayat/transaksi/{id}', [RiwayatController::class, 'showTransaksi'])->name('riwayat.transaksi.show');
+    Route::get('/riwayat/filter-transaksi', [RiwayatController::class, 'filterTransaksi'])->name('riwayat.filterTransaksi');
+
+
 });

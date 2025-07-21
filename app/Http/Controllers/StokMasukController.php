@@ -9,6 +9,9 @@ use App\Models\ProdukDetail;
 use App\Models\Supplier;
 use App\Models\Gudang;
 use App\Models\GudangRak;
+use App\Models\TransaksiRiwayat;
+use App\Models\TransaksiItemRiwayat;
+use App\Models\AktivitasRiwayat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -155,6 +158,44 @@ class StokMasukController extends Controller
                     'user_id' => auth()->id(),
                 ]);
 
+                // Record transaction history
+                $transaksi = TransaksiRiwayat::create([
+                    'user_id' => auth()->id(),
+                    'jenis_transaksi' => 'stok_masuk',
+                    'transaksi_id' => $stokMasuk->id,
+                    'kode_transaksi' => 'SM-' . date('Ymd') . '-' . str_pad($stokMasuk->id, 5, '0', STR_PAD_LEFT),
+                    'tanggal_transaksi' => now(),
+                    'total_item' => $validated['kuantitas'],
+                    'total_nilai' => $validated['kuantitas'] * $validated['harga_satuan'],
+                    'keterangan' => 'Stok masuk produk ' . $stokMasuk->produk->nama_produk,
+                ]);
+
+                // Record transaction items
+                TransaksiItemRiwayat::create([
+                    'transaksi_id' => $transaksi->id,
+                    'jenis_transaksi' => 'stok_masuk',
+                    'produk_id' => $validated['produk_id'],
+                    'varian_id' => $validated['varian_id'],
+                    'detail_id' => $validated['detail_id'],
+                    'kuantitas' => $validated['kuantitas'],
+                    'harga_satuan' => $validated['harga_satuan'],
+                    'subtotal' => $validated['kuantitas'] * $validated['harga_satuan'],
+                    'gudang_id' => $validated['gudang_id'],
+                    'rak' => $validated['rak'],
+                    'keterangan' => $validated['catatan'] ?? 'Stok masuk produk',
+                ]);
+
+                // Record activity
+                AktivitasRiwayat::create([
+                    'user_id' => auth()->id(),
+                    'tipe_aktivitas' => 'create',
+                    'subjek_tipe' => 'stok_masuk',
+                    'subjek_id' => $stokMasuk->id,
+                    'deskripsi' => 'Menambahkan stok masuk baru',
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ]);
+
                 if ($stokMasuk->isApproved()) {
                     $stokMasuk->approve(auth()->user());
                 }
@@ -175,7 +216,32 @@ class StokMasukController extends Controller
         }
 
         try {
-            $stokMasuk->approve(auth()->user());
+            DB::transaction(function () use ($stokMasuk) {
+                $stokMasuk->approve(auth()->user());
+
+                // Update transaction status in history
+                $transaksi = TransaksiRiwayat::where('jenis_transaksi', 'stok_masuk')
+                    ->where('transaksi_id', $stokMasuk->id)
+                    ->first();
+
+                if ($transaksi) {
+                    $transaksi->update([
+                        'keterangan' => 'Stok masuk produk ' . $stokMasuk->produk->nama_produk . ' (APPROVED)'
+                    ]);
+                }
+
+                // Record approval activity
+                AktivitasRiwayat::create([
+                    'user_id' => auth()->id(),
+                    'tipe_aktivitas' => 'approve',
+                    'subjek_tipe' => 'stok_masuk',
+                    'subjek_id' => $stokMasuk->id,
+                    'deskripsi' => 'Menyetujui stok masuk',
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ]);
+            });
+
             return back()->with('success', 'Stok masuk telah diapprove dan stok diperbarui');
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal approve stok: ' . $e->getMessage());
@@ -187,7 +253,32 @@ class StokMasukController extends Controller
         $stokMasuk = StokMasuk::findOrFail($id);
 
         try {
-            $stokMasuk->reject(auth()->user());
+            DB::transaction(function () use ($stokMasuk) {
+                $stokMasuk->reject(auth()->user());
+
+                // Update transaction status in history
+                $transaksi = TransaksiRiwayat::where('jenis_transaksi', 'stok_masuk')
+                    ->where('transaksi_id', $stokMasuk->id)
+                    ->first();
+
+                if ($transaksi) {
+                    $transaksi->update([
+                        'keterangan' => 'Stok masuk produk ' . $stokMasuk->produk->nama_produk . ' (REJECTED)'
+                    ]);
+                }
+
+                // Record rejection activity
+                AktivitasRiwayat::create([
+                    'user_id' => auth()->id(),
+                    'tipe_aktivitas' => 'reject',
+                    'subjek_tipe' => 'stok_masuk',
+                    'subjek_id' => $stokMasuk->id,
+                    'deskripsi' => 'Menolak stok masuk',
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ]);
+            });
+
             return back()->with('success', 'Stok masuk telah ditolak');
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal menolak stok: ' . $e->getMessage());
@@ -206,6 +297,19 @@ class StokMasukController extends Controller
             'approver'
         ])->findOrFail($id);
 
-        return view('stok-masuk.show', compact('stokMasuk'));
+        // Get related transaction history
+        $transaksi = TransaksiRiwayat::with('items')
+            ->where('jenis_transaksi', 'stok_masuk')
+            ->where('transaksi_id', $id)
+            ->first();
+
+        // Get related activities
+        $aktivitas = AktivitasRiwayat::with('user')
+            ->where('subjek_tipe', 'stok_masuk')
+            ->where('subjek_id', $id)
+            ->latest()
+            ->get();
+
+        return view('stok-masuk.show', compact('stokMasuk', 'transaksi', 'aktivitas'));
     }
 }

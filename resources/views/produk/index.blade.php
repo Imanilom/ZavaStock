@@ -181,6 +181,13 @@
         object-fit: cover;
         border-radius: 4px;
         border: 1px solid #eee;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .produk-foto:hover {
+        transform: scale(1.1);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
 
     .no-image {
@@ -350,6 +357,66 @@
         margin-top: 20px;
     }
 
+    /* Image Preview Styles */
+    .image-preview-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: var(--transition);
+    }
+
+    .image-preview-container.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .image-preview-content {
+        max-width: 90%;
+        max-height: 90%;
+        position: relative;
+    }
+
+    .preview-image {
+        max-width: 100%;
+        max-height: 80vh;
+        border-radius: 8px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .close-preview {
+        position: absolute;
+        top: -40px;
+        right: 0;
+        color: white;
+        font-size: 2rem;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .close-preview:hover {
+        color: var(--primary-color);
+        transform: rotate(90deg);
+    }
+
+    .image-preview-footer {
+        position: absolute;
+        bottom: -40px;
+        left: 0;
+        color: white;
+        font-size: 0.9rem;
+        width: 100%;
+        text-align: center;
+    }
+
     @media (max-width: 768px) {
         .search-filter-container {
             flex-direction: column;
@@ -443,7 +510,11 @@
                                 <td>{{ $index + 1 }}</td>
                                 <td>
                                     @if($produk->foto)
-                                        <img src="{{ asset('storage/' . $produk->foto) }}" class="produk-foto" alt="Foto Produk">
+                                        <img src="{{ asset('storage/' . $produk->foto) }}" 
+                                             class="produk-foto" 
+                                             alt="Foto Produk"
+                                             data-preview="{{ asset('storage/' . $produk->foto) }}"
+                                             data-title="{{ $produk->nama_produk }}">
                                     @else
                                         <div class="no-image">
                                             <i class="fas fa-image"></i>
@@ -528,6 +599,15 @@
     </div>
 </div>
 
+<!-- Image Preview Modal -->
+<div class="image-preview-container" id="imagePreview">
+    <div class="image-preview-content">
+        <span class="close-preview">&times;</span>
+        <img class="preview-image" id="previewImage" src="" alt="Product Preview">
+        <div class="image-preview-footer" id="previewTitle"></div>
+    </div>
+</div>
+
 <script>
     function toggleCollapse(element, targetId) {
         element.classList.toggle('active');
@@ -555,6 +635,46 @@
                 row.style.display = '';
             } else {
                 row.style.display = 'none';
+            }
+        });
+    });
+
+    // Image Preview Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const previewContainer = document.getElementById('imagePreview');
+        const previewImage = document.getElementById('previewImage');
+        const previewTitle = document.getElementById('previewTitle');
+        const closePreview = document.querySelector('.close-preview');
+        
+        // Add click event to all product images
+        document.querySelectorAll('.produk-foto').forEach(img => {
+            img.addEventListener('click', function() {
+                previewImage.src = this.dataset.preview;
+                previewTitle.textContent = this.dataset.title;
+                previewContainer.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            });
+        });
+        
+        // Close preview when clicking close button
+        closePreview.addEventListener('click', function() {
+            previewContainer.classList.remove('show');
+            document.body.style.overflow = '';
+        });
+        
+        // Close preview when clicking outside the image
+        previewContainer.addEventListener('click', function(e) {
+            if (e.target === previewContainer) {
+                previewContainer.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        });
+        
+        // Close preview with ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && previewContainer.classList.contains('show')) {
+                previewContainer.classList.remove('show');
+                document.body.style.overflow = '';
             }
         });
     });

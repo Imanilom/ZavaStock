@@ -329,7 +329,7 @@
 
                 <div class="form-group">
                     <label class="form-label">Nama</label>
-                    <input type="text" name="name" id="namaInput" class="form-control" required>
+                    <input type="text" name="nama" id="namaInput" class="form-control" required>
                 </div>
 
                 <div class="form-group">
@@ -339,12 +339,14 @@
 
                 <div class="form-group">
                     <label class="form-label">Password</label>
-                    <input type="password" name="password" class="form-control" required>
+                    <input type="password" name="password" id="passwordInput" class="form-control" required minlength="6">
+                    <div class="error-message" id="passwordError">Password harus minimal 6 karakter</div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Konfirmasi Password</label>
-                    <input type="password" name="password_confirmation" class="form-control" required>
+                    <input type="password" name="password_confirmation" id="confirmPasswordInput" class="form-control" required>
+                    <div class="error-message" id="confirmPasswordError">Konfirmasi password tidak cocok</div>
                 </div>
 
                 <div class="form-group">

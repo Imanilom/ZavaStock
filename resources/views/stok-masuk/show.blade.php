@@ -306,7 +306,7 @@
                     @csrf
                     @method('PUT')
                     <button type="submit" class="btn btn-success">
-                        <i class="fas fa-check"></i> Approve
+                        <i class="fas fa-check"></i> Setuju
                     </button>
                 </form>
 
@@ -314,7 +314,7 @@
                     @csrf
                     @method('PUT')
                     <button type="submit" class="btn btn-danger">
-                        <i class="fas fa-times"></i> Reject
+                        <i class="fas fa-times"></i> Tolak
                     </button>
                 </form>
             </div>

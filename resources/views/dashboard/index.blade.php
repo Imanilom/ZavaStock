@@ -96,7 +96,7 @@
                             <tbody>
                                 @foreach($recentStockIns as $stock)
                                 <tr>
-                                    <td>{{ $stock->produk->nama_produk }}</td>
+                                    <td>{{ $stock->produk->nama_produk ?? 'Produk Dihapus' }}</td>
                                     <td>{{ $stock->tanggal_masuk->format('d M Y') }}</td>
                                     <td>{{ $stock->kuantitas }}</td>
                                 </tr>
@@ -124,7 +124,7 @@
                             <tbody>
                                 @foreach($recentStockOuts as $stock)
                                 <tr>
-                                    <td>{{ $stock->produk->nama_produk }}</td>
+                                    <td>{{ $stock->produk->nama_produk ?? 'Produk Dihapus' }}</td>
                                     <td>{{ $stock->created_at->format('d M Y') }}</td>
                                     <td>{{ $stock->kuantitas }}</td>
                                 </tr>

@@ -7,6 +7,9 @@ use App\Models\ProdukDetail;
 use App\Models\ProdukVarian;
 use App\Models\ProdukHilang;
 use App\Models\KeteranganProduk;
+use App\Models\TransaksiRiwayat;
+use App\Models\TransaksiItemRiwayat;
+use App\Models\AktivitasRiwayat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -14,7 +17,7 @@ class ProdukHilangController extends Controller
 {
     public function index(Request $request)
     {
-        $query = ProdukHilang::with(['produk', 'keterangan', 'user'])
+        $query = ProdukHilang::with(['produk', 'keterangan', 'user', 'verifier'])
             ->latest();
 
         if ($request->has('search')) {
@@ -34,6 +37,10 @@ class ProdukHilangController extends Controller
             $query->where('status', $request->status);
         }
 
+        if ($request->has('tanggal_kejadian')) {
+            $query->whereDate('tanggal_kejadian', $request->tanggal_kejadian);
+        }
+
         $reports = $query->paginate(10);
 
         return view('produk-hilang.index', compact('reports'));
@@ -42,8 +49,29 @@ class ProdukHilangController extends Controller
     public function create()
     {
         $keterangans = KeteranganProduk::orderBy('nama')->get();
-        $produks = Produk::with(['varian.detail'])->orderBy('nama_produk')->get();
         
+        $produks = Produk::with('varian.detail')->orderBy('nama_produk')->get()->map(function ($produk) {
+            return [
+                'id' => $produk->id,
+                'text' => "{$produk->sku} - {$produk->nama_produk}",
+                'varian' => $produk->varian->map(function ($varian) use ($produk) {
+                    return [
+                        'id' => $varian->id,
+                        'text' => $varian->varian,
+                        'detail' => $varian->detail->map(function ($detail) use ($varian, $produk) {
+                            return [
+                                'id' => $detail->id,
+                                'text' => "{$varian->varian} - {$detail->detail} (Stok: {$detail->stok})",
+                                'stok' => $detail->stok,
+                                'varian_id' => $varian->id,
+                                'sku' => $produk->sku,
+                            ];
+                        }),
+                    ];
+                }),
+            ];
+        });
+
         return view('produk-hilang.create', compact('keterangans', 'produks'));
     }
 
@@ -109,30 +137,91 @@ class ProdukHilangController extends Controller
             }
         }
 
-        DB::transaction(function () use ($validated) {
-            $report = ProdukHilang::create([
-                'user_id' => auth()->id(),
-                'produk_id' => $validated['produk_id'],
-                'varian_id' => $validated['varian_id'],
-                'detail_id' => $validated['detail_id'],
-                'keterangan_id' => $validated['keterangan_id'],
-                'jumlah_hilang' => $validated['jumlah_hilang'],
-                'tanggal_kejadian' => $validated['tanggal_kejadian'],
-                'tanggal_lapor' => now(),
-                'catatan_tambahan' => $validated['catatan_tambahan'],
-                'status' => KeteranganProduk::find($validated['keterangan_id'])->butuh_verifikasi 
-                    ? ProdukHilang::STATUS_REPORTED 
-                    : ProdukHilang::STATUS_VERIFIED,
-            ]);
+        try {
+            DB::transaction(function () use ($validated) {
+                $report = ProdukHilang::create([
+                    'user_id' => auth()->id(),
+                    'produk_id' => $validated['produk_id'],
+                    'varian_id' => $validated['varian_id'],
+                    'detail_id' => $validated['detail_id'],
+                    'keterangan_id' => $validated['keterangan_id'],
+                    'jumlah_hilang' => $validated['jumlah_hilang'],
+                    'tanggal_kejadian' => $validated['tanggal_kejadian'],
+                    'tanggal_lapor' => now(),
+                    'catatan_tambahan' => $validated['catatan_tambahan'],
+                    'status' => KeteranganProduk::find($validated['keterangan_id'])->butuh_verifikasi 
+                        ? ProdukHilang::STATUS_REPORTED 
+                        : ProdukHilang::STATUS_VERIFIED,
+                ]);
 
-            // Update stock if verified immediately
-            if (!$report->needsVerification()) {
-                $this->updateStock($report);
-            }
-        });
+                // Record transaction history
+                $transaksi = TransaksiRiwayat::create([
+                    'user_id' => auth()->id(),
+                    'jenis_transaksi' => 'produk_hilang',
+                    'transaksi_id' => $report->id,
+                    'kode_transaksi' => 'PH-' . date('Ymd') . '-' . str_pad($report->id, 5, '0', STR_PAD_LEFT),
+                    'tanggal_transaksi' => now(),
+                    'total_item' => $validated['jumlah_hilang'],
+                    'total_nilai' => 0, // No monetary value for lost products
+                    'keterangan' => 'Produk hilang - ' . $report->keterangan->nama,
+                ]);
 
-        return redirect()->route('produk-hilang.index')
-            ->with('success', 'Laporan produk hilang berhasil disimpan');
+                // Record transaction items
+                TransaksiItemRiwayat::create([
+                    'transaksi_id' => $transaksi->id,
+                    'jenis_transaksi' => 'produk_hilang',
+                    'produk_id' => $validated['produk_id'],
+                    'varian_id' => $validated['varian_id'],
+                    'detail_id' => $validated['detail_id'],
+                    'kuantitas' => $validated['jumlah_hilang'],
+                    'harga_satuan' => 0, // No price for lost products
+                    'subtotal' => 0, // No subtotal for lost products
+                    'keterangan' => $validated['catatan_tambahan'] ?? 'Produk hilang',
+                ]);
+
+                // Record activity
+                AktivitasRiwayat::create([
+                    'user_id' => auth()->id(),
+                    'tipe_aktivitas' => 'create',
+                    'subjek_tipe' => 'produk_hilang',
+                    'subjek_id' => $report->id,
+                    'deskripsi' => 'Melaporkan produk hilang',
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ]);
+
+                // Update stock if verified immediately
+                if (!$report->needsVerification()) {
+                    $this->updateStock($report);
+                }
+            });
+
+            return redirect()->route('produk-hilang.index')
+                ->with('success', 'Laporan produk hilang berhasil disimpan');
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', 'Gagal menyimpan laporan: ' . $e->getMessage());
+        }
+    }
+
+    public function show($id)
+    {
+        $report = ProdukHilang::with(['produk', 'varian', 'detail', 'keterangan', 'user', 'verifier'])
+            ->findOrFail($id);
+
+        // Get related transaction history
+        $transaksi = TransaksiRiwayat::with('items')
+            ->where('jenis_transaksi', 'produk_hilang')
+            ->where('transaksi_id', $id)
+            ->first();
+
+        // Get related activities
+        $aktivitas = AktivitasRiwayat::with('user')
+            ->where('subjek_tipe', 'produk_hilang')
+            ->where('subjek_id', $id)
+            ->latest()
+            ->get();
+
+        return view('produk-hilang.show', compact('report', 'transaksi', 'aktivitas'));
     }
 
     public function verify($id)
@@ -151,35 +240,85 @@ class ProdukHilangController extends Controller
             }
         }
 
-        DB::transaction(function () use ($report) {
-            $report->update([
-                'status' => ProdukHilang::STATUS_VERIFIED,
-                'verified_by' => auth()->id(),
-                'verified_at' => now(),
-            ]);
+        try {
+            DB::transaction(function () use ($report) {
+                $report->update([
+                    'status' => ProdukHilang::STATUS_VERIFIED,
+                    'verified_by' => auth()->id(),
+                    'verified_at' => now(),
+                ]);
 
-            $this->updateStock($report);
-        });
+                $this->updateStock($report);
 
-        return back()->with('success', 'Laporan telah diverifikasi dan stok diperbarui');
+                // Update transaction status in history
+                $transaksi = TransaksiRiwayat::where('jenis_transaksi', 'produk_hilang')
+                    ->where('transaksi_id', $report->id)
+                    ->first();
+
+                if ($transaksi) {
+                    $transaksi->update([
+                        'keterangan' => 'Produk hilang - ' . $report->keterangan->nama . ' (VERIFIED)'
+                    ]);
+                }
+
+                // Record verification activity
+                AktivitasRiwayat::create([
+                    'user_id' => auth()->id(),
+                    'tipe_aktivitas' => 'approve',
+                    'subjek_tipe' => 'produk_hilang',
+                    'subjek_id' => $report->id,
+                    'deskripsi' => 'Memverifikasi laporan produk hilang',
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ]);
+            });
+
+            return back()->with('success', 'Laporan telah diverifikasi dan stok diperbarui');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal memverifikasi laporan: ' . $e->getMessage());
+        }
     }
 
     public function reject($id, Request $request)
     {
-        $request->validate([
-            'alasan_penolakan' => 'required|string|max:255'
-        ]);
-
+    
         $report = ProdukHilang::findOrFail($id);
         
-        $report->update([
-            'status' => ProdukHilang::STATUS_REJECTED,
-            'verified_by' => auth()->id(),
-            'verified_at' => now(),
-            'alasan_penolakan' => $request->alasan_penolakan
-        ]);
+        try {
+            DB::transaction(function () use ($report, $request) {
+                $report->update([
+                    'status' => ProdukHilang::STATUS_REJECTED,
+                    'verified_by' => auth()->id(),
+                    'verified_at' => now(),
+                ]);
 
-        return back()->with('success', 'Laporan telah ditolak');
+                // Update transaction status in history
+                $transaksi = TransaksiRiwayat::where('jenis_transaksi', 'produk_hilang')
+                    ->where('transaksi_id', $report->id)
+                    ->first();
+
+                if ($transaksi) {
+                    $transaksi->update([
+                        'keterangan' => 'Produk hilang - ' . $report->keterangan->nama . ' (REJECTED)'
+                    ]);
+                }
+
+                // Record rejection activity
+                AktivitasRiwayat::create([
+                    'user_id' => auth()->id(),
+                    'tipe_aktivitas' => 'reject',
+                    'subjek_tipe' => 'produk_hilang',
+                    'subjek_id' => $report->id,
+                    'deskripsi' => 'Menolak laporan produk hilang: ' . $request->alasan_penolakan,
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ]);
+            });
+
+            return back()->with('success', 'Laporan telah ditolak');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal menolak laporan: ' . $e->getMessage());
+        }
     }
 
     protected function updateStock(ProdukHilang $report)

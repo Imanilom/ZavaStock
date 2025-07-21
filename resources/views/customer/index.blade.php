@@ -283,10 +283,10 @@
 <div class="customer-container">
     <div class="card">
         <div class="card-header">
-            <h2 class="card-title">Manajemen Customer</h2>
+            <h2 class="card-title">Manajemen Petugas</h2>
             <div class="action-buttons">
                 <button class="btn btn-primary" onclick="showFormCustomer('add')" id="btnAddCustomer">
-                    <i class="fas fa-plus"></i> Tambah Customer
+                    <i class="fas fa-plus"></i> Tambah Petugas
                 </button>
             </div>
         </div>
@@ -295,7 +295,7 @@
             <!-- Search Box -->
             <div class="search-box">
                 <i class="fas fa-search search-icon"></i>
-                <input type="search" class="search-input" placeholder="Cari customer..." id="searchInputCustomer">
+                <input type="search" class="search-input" placeholder="Cari Petugas..." id="searchInputCustomer">
             </div>
 
             <!-- Form Tambah/Edit -->
@@ -305,7 +305,7 @@
 
                 <div class="form-group">
                     <label class="form-label">Nama</label>
-                    <input type="text" name="name" id="namaInputCustomer" class="form-control" required>
+                    <input type="text" name="nama" id="namaInputCustomer" class="form-control" required>
                 </div>
 
                 <div class="form-group">
@@ -313,14 +313,16 @@
                     <input type="email" name="email" id="emailInputCustomer" class="form-control" required>
                 </div>
 
-                <div class="form-group">
+                 <div class="form-group">
                     <label class="form-label">Password</label>
-                    <input type="password" name="password" id="passwordInputCustomer" class="form-control" placeholder="Kosongkan jika tidak diubah">
+                    <input type="password" name="password" id="passwordInputCustomer" class="form-control" required minlength="6">
+                    <div class="error-message" id="passwordError">Password harus minimal 6 karakter</div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Konfirmasi Password</label>
-                    <input type="password" name="password_confirmation" class="form-control">
+                    <input type="password" name="password_confirmation" id="confirmPasswordInput" class="form-control" required>
+                    <div class="error-message" id="confirmPasswordError">Konfirmasi password tidak cocok</div>
                 </div>
 
                 <div class="form-group">
@@ -378,7 +380,7 @@
                                         <form method="POST" action="{{ route('customer.destroy', $customer->id) }}" style="display:inline;">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn-action btn-delete" title="Hapus" onclick="return confirm('Yakin ingin menghapus customer ini?')">
+                                            <button type="submit" class="btn-action btn-delete" title="Hapus" onclick="return confirm('Yakin ingin menghapus Petugas ini?')">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
@@ -391,9 +393,9 @@
                                             <div class="empty-icon">
                                                 <i class="fas fa-users"></i>
                                             </div>
-                                            <h4 class="empty-text">Belum ada data customer</h4>
+                                            <h4 class="empty-text">Belum ada data Petugas</h4>
                                             <button class="btn btn-primary" onclick="showFormCustomer('add')">
-                                                <i class="fas fa-plus"></i> Tambah Customer Pertama
+                                                <i class="fas fa-plus"></i> Tambah Petugas Pertama
                                             </button>
                                         </div>
                                     </td>
@@ -428,11 +430,11 @@
         if (existingMethod) existingMethod.remove();
 
         if (mode === 'add') {
-            cardTitle.innerText = 'Tambah Customer';
+            cardTitle.innerText = 'Tambah Petugas';
             form.action = "{{ route('customer.store') }}";
             document.getElementById('passwordInputCustomer').required = true;
         } else {
-            cardTitle.innerText = 'Edit Customer';
+            cardTitle.innerText = 'Edit Petugas';
             form.action = "{{ url('customer') }}/" + mode;
 
             // Add PUT method
@@ -465,8 +467,8 @@
         form.classList.remove('show');
         setTimeout(() => form.style.display = 'none', 300);
         table.style.display = 'block';
-        cardTitle.innerText = 'Manajemen Customer';
-        btn.innerHTML = '<i class="fas fa-plus"></i> Tambah Customer';
+        cardTitle.innerText = 'Manajemen Petugas';
+        btn.innerHTML = '<i class="fas fa-plus"></i> Tambah Petugas';
         btn.setAttribute('onclick', 'showFormCustomer("add")');
     }
 
@@ -508,11 +510,11 @@
     function confirmDeleteSelected() {
         const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
         if (checkedBoxes.length === 0) {
-            alert('Pilih setidaknya satu customer untuk dihapus');
+            alert('Pilih setidaknya satu Petugas untuk dihapus');
             return;
         }
 
-        if (confirm(`Yakin ingin menghapus ${checkedBoxes.length} customer yang dipilih?`)) {
+        if (confirm(`Yakin ingin menghapus ${checkedBoxes.length} Petugas yang dipilih?`)) {
             document.getElementById('deleteCustomerForm').submit();
         }
     }
